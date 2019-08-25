@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.2">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="./node_modules/c3/c3.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="./Source/CSS/index.css">
+
+    <script src="./Source/JS/Include/particlesjs-config.js"></script>
+    <script src="./Source/JS/Include/particles.js"></script>
+    <script src="./Source/JS/Include/vue.js"></script>
+    
+    <title>Hardwave Fuzzy Project</title>
+</head>
+
+<body>
+    <div id="particles-js"></div>
+
+    <!--
+    <div id="components-demo" class="panel">
+            <button-counter></button-counter>
+        <div class="CONTENT">
+            <a>123</a>
+            <al-input></al-input>
+        </div>
+    </div>
+    -->
+
+    <div id="Panel" class="panel">
+       
+        <!--<div class="TITLECONTENT BreathingAreaLight">
+               <nav>
+                   <div>
+                       <h1>一個硬體模糊程式碼生成器</h1>
+                       <p>The Program From Lian0123</p>
+                   </div>
+               </nav>
+               <hr>
+               
+       </div>-->
+
+        <div class="TITLE_ABLBTN">
+            <h1>{{TilteText}}</h1>
+        </div>
+
+        <!--test-->
+
+       
+        
+
+        <!--程式首頁-->
+        <div v-if="IndexView.IsView">
+            <br>
+            <div class="CONTENT A ROW">
+                    <div class="col16">
+                    <b>使用說明：</b>
+                    <p>該程式用於建立，HardFuzzy控制器的程式碼生成。</p>
+
+                    <b>免則申明：</b>
+                    <p>該程式碼所生成之應用所造成之任何危害行為，本程式不會為任何損失的負責。</p>
+                    <div @click="ChangeViewEvent(1)"><al-button text="我同意使用規則"></al-button></div>
+
+                </div>
+            </div>
+        </div>
+
+        <!--建立專案-->
+        <div v-if="MakeProjectView.IsView">
+            <br>
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <p>專案名稱：<al-input holdertext="請在此輸入專案名稱" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
+                    <a href="#"><button class="ABLBTN" type="button">建立專案</button></a>
+                </div>
+            </div>
+        </div>
+
+
+        <!--設定MF資料-->
+        <div v-if="DesignMumbershipFuncitonView.IsView">
+            <br>
+            <!--ROW 1-->
+            <div class="CONTENT A ROW">
+                <div class="col12">
+                    <div class="BLOCK_CONTENT">
+                    <p>MF名稱：<al-input class="FixedHight30px" holdertext="請在此輸入MF名稱" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增MF</button></a></p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+
+            <!--ROW 2-->
+            <div class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT"><br>
+                        <p class="FixedP">MF名稱....</p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p> <select class="ABLSELECT">
+                            <option value="0">一般輸入</option>
+                            <option value="1">回授輸入</option>
+                        </select></p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">移除MF</button></a></p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+
+            <!--ROW 3-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <a href="#"><button class="ABLBTN" type="button">下一步</button></a>
+                </div>
+            </div>
+        </div>
+
+
+        <!--設定FN資料-->
+        <div v-if="DesignFuzzyNumberView.IsView">
+            <br>
+
+            <div class=" CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <div class='c3-editor' id="FuzzyNumberView"></div>
+                    </div>
+                </div>  
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                    <b>MF名稱：</b>
+                    <p>FuzzyNumber{K}：<input class="ABLINPUT" type="text" placeholder="X0" /></p>
+                    <p><input class="ABLINPUT" type="text" placeholder="X1" /></p>
+                    <p><input class="ABLINPUT" type="text" placeholder="X2" /></p>
+                    <p><input class="ABLINPUT" type="text" placeholder="X3" /></p>
+                    <a href="#"><button class="ABLBTN" type="button">建立專案</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+        <!--設定Rule-->
+        <div v-if="DesignRuleView.IsView">
+            <br>
+            <!--ROW 1-->
+            <div class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                    <p>規則設計</p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空規則</button></a></p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增規則</button></a></p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+
+            <!--ROW 2-->
+            <div class="CONTENT A ROW">
+                <div class="col2">
+                    <div class="BLOCK_CONTENT"><br>
+                        <p class="FixedP">Rulei</p>
+                    </div>
+                </div>
+
+                <div class="col2">
+                    <div class="BLOCK_CONTENT">
+                        <p> <select class="ABLSELECT">
+                            <option value="0">MF1</option>
+                            <option value="1">MF2</option>
+                            <option value="1">MF3</option>
+                        </select></p>
+                    </div>
+                </div>
+
+                <div class="col2">
+                    <div class="BLOCK_CONTENT">
+                        <p> <select class="ABLSELECT">
+                            <option value="0">FN1</option>
+                            <option value="1">FN2</option>
+                            <option value="2">FN3</option>
+                        </select></p>
+                    </div>
+                </div>
+
+                <div class="col2">
+                        <div class="BLOCK_CONTENT">
+                            <p> <select class="ABLSELECT">
+                                <option value="0"></option>
+                                <option value="1">AND</option>
+                                <option value="2">OR</option>
+                                <option value="3">XOR</option>
+                                <option value="4">NAND</option>
+                                <option value="5">NOR</option>
+                                <option value="6">XNOR</option>
+                            </select></p>
+                        </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">增加關聯</button></a></p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">移除MF</button></a></p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+
+            <!--ROW 3-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <a href="#"><button class="ABLBTN" type="button">下一步</button></a>
+                </div>
+            </div>
+        </div>
+
+        <!--設定合併的FN-->
+
+        <!--設定NN化架構-->
+
+        <!--專案確認界面-->
+
+        <!--導出專案界面-->
+
+        <!--錯誤處理用界面-->
+
+       <div v-if="IsBaseView">
+           <br>
+           <div class="CONTENT">
+               <p>編輯Mumbership Function：
+                   <select class="ABLSELECT">
+                       <option value="0">0</option>
+                       <option value="1">1</option>
+                       <option value="2">2</option>
+                       <option value="3">3</option>
+                       <option value="n">n</option>
+                   </select>
+               </p>
+               <button class="ABLBTNSMALL" type="button">切換</button>
+               <!--專案設定、MF設定、MF參數區間、FN型別設定、FN區間設定。-->
+           </div>
+       </div>
+       
+       <div v-if="IsBaseView">
+           <br>
+           <div class="CONTENT">
+               <p>編輯Mumbership Function：
+                   <select class="ABLSELECT">
+                       <option value="0">0</option>
+                       <option value="1">1</option>
+                       <option value="2">2</option>
+                       <option value="3">3</option>
+                       <option value="n">n</option>
+                   </select>
+               </p>
+               <button class="ABLBTNSMALL" type="button">切換</button>
+               <!--專案設定、MF設定、MF參數區間、FN型別設定、FN區間設定。-->
+           </div>
+       </div>
+
+       <div v-if="IsBaseView" class="A ROW">
+           <br>
+           
+           <div class="col8">
+               <div class="CONTENT">
+                   <p>Mumbership Function種類：
+                       <select class="ABLSELECT">
+                           <option value="0">一般輸入</option>
+                           <option value="1">回授輸入</option>
+                       </select>
+                   </p>
+
+                   <button class="ABLBTNSMALL" type="button">切換</button>
+                   <!--專案設定、MF設定、MF參數區間、FN型別設定、FN區間設定。-->
+
+               </div>
+           </div>
+           <div class="col8">
+               <div class="CONTENT">
+                   <p>Mumbership Function種類：
+                       <select class="ABLSELECT">
+                           <option value="0">一般輸入</option>
+                           <option value="1">回授輸入</option>
+                       </select>
+                   </p>
+
+                   <button class="ABLBTNSMALL" type="button">切換</button>
+                   <!--專案設定、MF設定、MF參數區間、FN型別設定、FN區間設定。-->
+
+               </div>
+           </div>
+       </div>
+           
+       <div v-if="IsBaseView">
+           <div class="CONTENT">
+               <div>
+                   <p>FuzzyNumber{K}：<input class="ABLINPUT" type="text" placeholder="X0" /></p>
+                   <p><input class="ABLINPUT" type="text" placeholder="X1" /></p>
+                   <p><input class="ABLINPUT" type="text" placeholder="X2" /></p>
+                   <p><input class="ABLINPUT" type="text" placeholder="X3" /></p>
+                   <a target="FaceBookLian0123" href="#"><button class="ABLBTN" type="button">建立專案</button></a>
+               </div>
+            </div>
+       </div>
+       
+       <div v-if="IsBaseView">
+           <br>
+           <div class="CONTENT">
+               <h3>使用說明：</h3>
+               <p>此程式為外掛工具，在此能依靠此工具生成控制用程式碼。</p>
+               <!--專案設定、MF設定、MF參數區間、FN型別設定、FN區間設定。-->
+           </div>
+       </div>
+       <br>
+
+       <div v-if="IsBaseView">
+           <div class="CONTENT">
+               <h3>Linux安裝篇ArchLabs設定</h3>
+               <div class="column">
+                   <span class="tag is-warning is-medium">2019-01-30</span>
+                   <span class="tag is-success is-medium">v0.0.2</span>
+                   <span class="tag is-danger is-medium">教學文</span>
+               </div>
+               <div>
+                   <a target="linux-linux-archlabs-20190120-part3" href="https://www.slideshare.net/ssuser6090c0/linux-linux-archlabs-20190120-part3"><button class="ABLBTN" type="button">SlideShare Link</button></a>
+               </div>
+           </div>
+        </div>
+
+        <br><br><br>
+    </div>
+</body>
+</html>
+
+<script src="./Source/JS/index.js"></script>

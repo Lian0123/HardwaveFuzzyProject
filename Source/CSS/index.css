@@ -1,0 +1,352 @@
+
+*{
+  font-family: "WenQuanYi Micro Hei Mono";
+}
+
+
+html, body{
+  background-color:#1d1d3a;
+  margin: 0px;
+  padding: 0px;
+}
+
+#particles-js{
+  background-color:#1d1d3a;
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  z-index: -999;
+  position: fixed;
+}
+.c3 .c3-axis-x path, .c3 .c3-axis-x line {
+  stroke: aliceblue;
+}
+.c3 .c3-axis-y path, .c3 .c3-axis-y line {
+  stroke: aliceblue;
+}
+.c3-axis-x text {
+  font-size:12px;
+  fill:aliceblue;
+}
+.c3-axis-y text {
+  font-size:12px;
+  fill:aliceblue;
+}
+.c3-legend-item{
+  fill:aliceblue;
+}
+.c3 {
+
+  color:#1d1d3a;
+}
+.BTNBUFFER{
+  background-color:#1d1d3a;
+  text-align: center;
+  color: aliceblue;
+  margin: 0px;
+  width: 100%;
+  height: 40%;
+  bottom: -5%;
+  border: 0px;
+}
+
+.panel{
+  position:absolute;
+  color: aliceblue;
+  z-index:100;
+  width: 100%;
+  height: 100%;
+  margin: 0px;
+  padding: 0px; 
+}
+
+.CONTENT {
+  z-index: 1;
+  margin:0 auto;
+  background-color: rgba(55, 57, 87, 0.466);
+  width: 90%;
+  padding: 2% 2.5%;
+}
+
+.SMALL_CONTENT {
+  z-index: 1;
+  margin:0 auto;
+  background-color: rgba(55, 57, 87, 0.466);
+  width: 90%;
+  padding: 0 2.5%;
+}
+
+.BLOCK_CONTENT {
+  z-index: 1;
+  width: 99%;
+}
+
+.TITLECONTENT {
+  z-index: 1;
+  color: aliceblue;
+  background-color: rgba(21, 21, 32, 0.924);
+  padding: 20px 10px;
+}
+
+.ABLBTN{
+  z-index: 2;
+  text-align: center;
+  color:aliceblue;
+  background-color: rgba(55, 57, 87, 0.466);
+  border:2px rgb(255, 255, 255) solid;
+  cursor:pointer;
+  width:100%;
+  height:40px;
+}
+
+.ABLBTN:hover{
+  z-index: 2;
+  text-align: center;
+  color:rgb(255, 247, 130);
+  background-color: rgba(55, 57, 87, 0.466);
+  border:2px rgb(255, 247, 130) solid;
+  cursor:pointer;
+  width:100%;
+  height:40px;
+}
+
+.ERRABLBTN{
+  z-index: 2;
+  text-align: center;
+  color:rgb(255, 147, 147);
+  background-color: rgba(55, 57, 87, 0.466);
+  border:2px rgb(255, 147, 147) solid;
+  cursor:pointer;
+  width:100%;
+  height:40px;
+}
+
+.ABLBTNSMALL{
+  z-index: 2;
+  text-align: center;
+  color:aliceblue;
+  background-color: rgba(55, 57, 87, 0.466);
+  border:2px rgb(255, 255, 255) solid;
+  cursor:pointer;
+  width:100%;
+  height:30px;
+}
+
+.ABLBTNSMALL:hover{
+  z-index: 2;
+  text-align: center;
+  color:rgb(255, 247, 130);
+  background-color: rgba(55, 57, 87, 0.466);
+  border:2px rgb(255, 247, 130) solid;
+  cursor:pointer;
+  width:100%;
+  height:30px;
+}
+
+.TITLE_ABLBTN{
+  z-index: 2;
+  text-align: center;
+  color:aliceblue;
+  cursor:pointer;
+}
+
+.TITLE_ABLBTN:hover{
+  z-index: 2;
+  text-align: center;
+  color:rgb(255, 247, 130);
+  cursor:pointer;
+}
+
+
+h1:hover{
+  color:rgb(255, 247, 130);
+}
+
+navbar-link {
+  color: aliceblue;
+}
+
+input.ABLINPUT{
+  width:100%;
+  height:30px;
+  background-color: rgba(45, 47, 71, 0.712);
+  color: aliceblue;
+  border:0.5px rgba(45, 47, 71, 0.712) solid; /*外框*/
+  border-bottom-color: aliceblue;
+  caret-color: aliceblue; /*閃耀屬標*/ 
+  outline-style: none ;
+  /*外框光線*/
+  /*outline-color: rgb(249, 255, 197); 
+  
+  flood-color: blueviolet; 
+  lighting-color: crimson;
+  column-rule-color: crimson;
+  text-shadow: violet;*/
+}
+
+input.ERRABLINPUT{
+  width:100%;
+  height:30px;
+  background-color: rgba(45, 47, 71, 0.712);
+  color: rgb(255, 147, 147);
+  border:0.5px rgba(45, 47, 71, 0.712) solid; /*外框*/
+  border-bottom-color: rgb(255, 147, 147);
+  caret-color: rgb(255, 147, 147); /*閃耀屬標*/ 
+  outline-style: none ;
+  /*外框光線*/
+  /*outline-color: rgb(249, 255, 197); 
+  
+  flood-color: blueviolet; 
+  lighting-color: crimson;
+  column-rule-color: crimson;
+  text-shadow: violet;*/
+}
+
+input.ABLINPUT:hover{
+  width:100%;
+  height:30px;
+  background-color: rgba(45, 47, 71, 0.712);
+  color: rgb(255, 247, 130);
+  border:0.5px rgba(45, 47, 71, 0.712) solid; /*外框*/
+  border-bottom-color: rgb(255, 247, 130);
+  caret-color: rgb(255, 247, 130); /*閃耀屬標*/  
+  outline-style: none ;
+}
+
+input.ABLINPUT:focus{
+  width:100%;
+  height:30px;
+  background-color: rgba(45, 47, 71, 0.712);
+  color: rgb(255, 247, 130);
+  border:0.5px rgba(45, 47, 71, 0.712) solid; /*外框*/
+  border-bottom-color: rgb(255, 247, 130);
+  caret-color: rgb(255, 247, 130); /*閃耀屬標*/  
+  outline-style: none ;
+}
+
+input::placeholder{
+  color: aliceblue;
+}
+
+input:hover::placeholder{
+  color: rgb(255, 247, 130);
+}
+
+input.ERRABLINPUT:hover::placeholder{
+  color: rgb(255, 147, 147);
+}
+
+select.ABLSELECT{
+  width:100%;
+  height:30px;
+  background-color: rgba(45, 47, 71, 0.712);
+  color: aliceblue;
+  border:0.5px aliceblue solid; /*外框*/
+  border-bottom-color: aliceblue;
+  outline-style: none ;
+  line-height:18px;
+  font-size: 16px;
+}
+
+select.ABLSELECT:hover{
+  width:100%;
+  height:30px;
+  background-color: rgba(45, 47, 71, 0.712);
+  color: rgb(255, 247, 130);
+  border:0.5px rgb(255, 247, 130) solid; 
+  border-bottom-color: rgb(255, 247, 130);
+  outline-style: none ;
+  line-height:18px;
+  font-size: 16px;
+}
+
+select.ABLSELECT option{
+  background-color: rgb(26, 27, 41);
+  outline-style: none ;
+  color: aliceblue;   
+  line-height:18px;
+  font-size: 16px; 
+}
+
+.ts.grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: -0.4rem;
+}
+
+.A.ROW{
+  display: flex;
+  flex-direction: row;
+  margin:0 auto;
+  padding: 2% 1.25%;
+}
+
+.col1 {
+  width: calc(100% / 16 * 1)
+}
+
+.col2 {
+  width: calc(100% / 16 * 2)
+}
+
+.col3 {
+  width: calc(100% / 16 * 3)
+}
+
+.col4 {
+  width: calc(100% / 16 * 4);
+  padding: 0% 0%;
+}
+
+.col8 {
+  width: calc(100% / 16 * 8);
+  padding: 0% 0%;
+}
+
+.col12 {
+  width: calc(100% / 16 * 12);
+  padding: 0% 0%;
+}
+
+.col16 {
+  width: calc(100% / 16 * 16);
+  padding: 0% 0%;
+}
+
+
+
+.BreathingAreaLight{
+  -webkit-animation-direction: alternate-reverse;
+  animation-direction: alternate-reverse;
+  -webkit-animation-iteration-count:infinite;
+  animation-iteration-count:infinite;
+  -webkit-animation-duration: 2s;
+  animation-duration:2s;
+  -webkit-animation-name:mymove;
+  animation-name:mymove;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes mymove {
+  from {background-color: rgba(21, 21, 32, 0.924);}
+  to {background-color: rgba(29, 22, 41, 0.924);}
+}
+
+/* Standard syntax */
+@keyframes mymove {
+  from {background-color: rgba(21, 21, 32, 0.924);}
+  to {background-color: rgba(29, 22, 41, 0.924);}
+}
+
+
+/* Fixed Height */
+.FixedHight30px{
+  height:30px;
+  vertical-align:bottom;	
+}
+
+.FixedP{
+  display: table-cell;
+}
