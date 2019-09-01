@@ -146,14 +146,12 @@ html, body{
 
 .TITLE_ABLBTN{
   z-index: 2;
-  text-align: center;
   color:aliceblue;
   cursor:pointer;
 }
 
 .TITLE_ABLBTN:hover{
   z-index: 2;
-  text-align: center;
   color:rgb(255, 247, 130);
   cursor:pointer;
 }
@@ -267,13 +265,6 @@ select.ABLSELECT option{
   color: aliceblue;   
   line-height:18px;
   font-size: 16px; 
-}
-
-.ts.grid {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin: -0.4rem;
 }
 
 .A.ROW{

@@ -30,20 +30,17 @@
 
     <div id="Panel" class="panel">
        
-        <!--<div class="TITLECONTENT BreathingAreaLight">
+        <div class="TITLECONTENT BreathingAreaLight">
                <nav>
                    <div>
-                       <h1>一個硬體模糊程式碼生成器</h1>
-                       <p>The Program From Lian0123</p>
+                       <h1>{{TilteText}}</h1>
+                       <p v-if="TilteText != '錯誤界面'" href="#" @click="BackViewEvent()" class="TITLE_ABLBTN">上一步</p>
                    </div>
                </nav>
                <hr>
                
-       </div>-->
+       </div>
 
-        <div class="TITLE_ABLBTN">
-            <h1>{{TilteText}}</h1>
-        </div>
 
         <!--程式首頁-->
         <div v-if="IndexView.IsView">
@@ -55,7 +52,7 @@
 
                     <b>免則申明：</b>
                     <p>該程式碼所生成之應用所造成之任何危害行為，本程式不會為任何損失的負責。</p>
-                    <div @click="ChangeViewEvent(1)"><al-button text="我同意使用規則"></al-button></div>
+                    <div @click="NextViewEvent()"><al-button text="我同意使用規則"></al-button></div>
 
                 </div>
             </div>
@@ -67,7 +64,7 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <p>專案名稱：<al-input holdertext="請在此輸入專案名稱" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
-                    <a href="#"><button class="ABLBTN" type="button">建立專案</button></a>
+                    <div @click="FinSetProjectNameEvent()"><al-button text="建立專案"></al-button></div>
                 </div>
             </div>
         </div>
@@ -77,42 +74,14 @@
         <div v-if="DesignMumbershipFuncitonView.IsView">
             <br>
             <!--ROW 1-->
-            <div class="CONTENT A ROW">
-                <div class="col12">
-                    <div class="BLOCK_CONTENT">
-                    <p>MF名稱：<al-input class="FixedHight30px" holdertext="請在此輸入MF名稱" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
-                    </div>
-                </div>
-
-                <div class="col4">
-                    <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增MF</button></a></p>
-                    </div>
-                </div>
-
-            </div>
+            <al-input-panel  holdertext="請在此輸入MF名稱" titlename="MF名稱：" addtext="新增MF" v-on:get-child-input-text="AddNewMFEvent"></al-input-panel>
             <br>
 
             <!--ROW 2-->
             <div class="CONTENT A ROW">
-                <div class="col8">
-                    <div class="BLOCK_CONTENT"><br>
-                        <p class="FixedP">MF名稱....</p>
-                    </div>
-                </div>
-
-                <div class="col4">
+                <div class="col16">
                     <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">一般輸入</option>
-                            <option value="1">回授輸入</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col4">
-                    <div class="BLOCK_CONTENT">
-                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">移除MF</button></a></p>
+                        <p>歸屬精度設定：<al-input class="FixedHight30px" holdertext="請輸入歸屬值精細度" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
                     </div>
                 </div>
 
@@ -120,9 +89,35 @@
             <br>
 
             <!--ROW 3-->
+            <div v-for="(item, index) in DesignMumbershipFuncitonView.MFArray" class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT"><br>
+                        <p class="FixedP">{{item.MFName}}</p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p> <select v-model="item.Type" class="ABLSELECT">
+                            <option value="一般輸入">一般輸入</option>
+                            <option value="回授輸入">回授輸入</option>
+                        </select></p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p @click="RemoveMFEvent(index)"><a href="#"><button class="ABLBTNSMALL"  type="button">移除MF</button></a></p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+
+            <!--ROW 4-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <a href="#"><button class="ABLBTN" type="button">下一步</button></a>
+                    <div @click="FinDesignMumbershipFuncitonEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
         </div>
@@ -131,24 +126,32 @@
         <!--設定FN資料-->
         <div v-if="DesignFuzzyNumberView.IsView">
             <br>
-
-            <div class=" CONTENT A ROW">
+            <!--ROW 1-->
+            <div v-for="(item, index) in DesignFuzzyNumberView.MFArray" class=" CONTENT A ROW">
                 <div class="col8">
                     <div class="BLOCK_CONTENT">
-                        <div class='c3-editor' id="FuzzyNumberView"></div>
+                        <div class='c3-editor' v-bind:id="item.MFName"></div>
                     </div>
                 </div>  
                 <div class="col8">
                     <div class="BLOCK_CONTENT">
                     <b>MF名稱：</b>
-                    <p>FuzzyNumber{K}：<input class="ABLINPUT" type="text" placeholder="X0" /></p>
-                    <p><input class="ABLINPUT" type="text" placeholder="X1" /></p>
-                    <p><input class="ABLINPUT" type="text" placeholder="X2" /></p>
-                    <p><input class="ABLINPUT" type="text" placeholder="X3" /></p>
-                    <a href="#"><button class="ABLBTN" type="button">建立專案</button></a>
+                    <p>FuzzyNumber：<input class="ABLINPUT" type="number" min="0" placeholder="X0" v-model.trim="item.X0Tmp"/></p>
+                    <p><input class="ABLINPUT" type="number" min="0" placeholder="X1" v-model.trim="item.X1Tmp"/></p>
+                    <p><input class="ABLINPUT" type="number" min="0" placeholder="X2" v-model.trim="item.X2Tmp"/></p>
+                    <p><input class="ABLINPUT" type="number" min="0" placeholder="X3" v-model.trim="item.X3Tmp"/></p>
+                    <div @click="SetFNEvent(index)"><al-button text="新增FN"></al-button></div>
                     </div>
                 </div>
             </div>
+            <br>
+
+            <!--ROW 2-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
+                </div>
+            </div>  
         </div>
        
         <!--設定Rule-->
@@ -266,13 +269,14 @@
             <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <a href="#"><button class="ABLBTN" type="button">下一步</button></a>
+                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
         </div>
 
         <!--設定合併的FN-->
         <div v-if="DesignDownDimView.IsView">
+            <br>
             <!--ROW 1-->
             <div class="CONTENT A ROW">
                 <div class="col8">
@@ -283,13 +287,13 @@
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空規則</button></a></p>
+                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空合併</button></a></p>
                     </div>
                 </div>
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增規則</button></a></p>
+                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增合併</button></a></p>
                     </div>
                 </div>
 
@@ -304,7 +308,7 @@
                     </div>
                 </div>
 
-                <div class="col2">
+                <div class="col3">
                     <div class="BLOCK_CONTENT">
                         <p> <select class="ABLSELECT">
                             <option value="0">MF1</option>
@@ -314,7 +318,7 @@
                     </div>
                 </div>
 
-                <div class="col2">
+                <div class="col3">
                     <div class="BLOCK_CONTENT">
                         <p> <select class="ABLSELECT">
                             <option value="0">FN1</option>
@@ -324,58 +328,28 @@
                     </div>
                 </div>
 
-                <div class="col1">
+                <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">></option>
-                            <option value="1">=</option>
-                            <option value="2"><</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">0.1</option>
-                            <option value="1">0.2</option>
-                            <option value="2">0.3</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col1">
                         <div class="BLOCK_CONTENT">
-                            <p> <select class="ABLSELECT">
-                                <option value="0">0</option>
-                                <option value="1">1</option>
-                            </select></p>
+                                <p> <select class="ABLSELECT">
+                                        <option value="0">權重0.0</option>
+                                        <option value="1">權重0.1</option>
+                                        <option value="2">權重0.2</option>
+                                        <option value="5">權重0.5</option>
+                                    </select></p>
                         </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0"></option>
-                            <option value="1">AND</option>
-                            <option value="2">OR</option>
-                            <option value="3">XOR</option>
-                            <option value="4">NAND</option>
-                            <option value="5">NOR</option>
-                            <option value="6">XNOR</option>
-                        </select></p>
                     </div>
                 </div>
 
                 <div class="col2">
                     <div class="BLOCK_CONTENT">
-                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">增加關聯</button></a></p>
+                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">資加一維</button></a></p>
                     </div>
                 </div>
 
                 <div class="col2">
                     <div class="BLOCK_CONTENT">
-                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">移除MF</button></a></p>
+                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">減少一維</button></a></p>
                     </div>
                 </div>
 
@@ -385,7 +359,7 @@
             <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <a href="#"><button class="ABLBTN" type="button">下一步</button></a>
+                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
         </div>
@@ -419,7 +393,7 @@
             </div>
             <br>
 
-            <!--ROW 2-->
+            <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col8">
                     <div class="BLOCK_CONTENT">
@@ -434,7 +408,7 @@
             <!--ROW 4-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <a href="#"><button class="ABLBTN" type="button">下一步</button></a>
+                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
 
@@ -464,7 +438,7 @@
             <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <a href="#"><button class="ABLBTN" type="button">匯出為sv檔</button></a>
+                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
     
@@ -486,7 +460,7 @@
             <!--ROW 2-->   
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <a href="#"><button class="ABLBTN" type="button">回首頁</button></a>
+                    <div @click="ChangeViewEvent(0)"><al-button text="匯出為sv檔"></al-button></div>
                 </div>
             </div>
     
@@ -517,7 +491,7 @@
             <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <a href="#"><button class="ABLBTN" type="button">回首頁</button></a>
+                    <div @click="ChangeViewEvent(0)"><al-button text="匯出為sv檔"></al-button></div>
                 </div>
             </div>
        </div>
