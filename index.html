@@ -78,21 +78,10 @@
             <br>
 
             <!--ROW 2-->
-            <div class="CONTENT A ROW">
-                <div class="col16">
-                    <div class="BLOCK_CONTENT">
-                        <p>歸屬精度設定：<al-input class="FixedHight30px" holdertext="請輸入歸屬值精細度" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
-                    </div>
-                </div>
-
-            </div>
-            <br>
-
-            <!--ROW 3-->
             <div v-for="(item, index) in DesignMumbershipFuncitonView.MFArray" class="CONTENT A ROW">
                 <div class="col8">
                     <div class="BLOCK_CONTENT"><br>
-                        <p class="FixedP">{{item.MFName}}</p>
+                        <p class="FixedP">{{item.Name}}</p>
                     </div>
                 </div>
 
@@ -114,7 +103,28 @@
             </div>
             <br>
 
+            <!--ROW 3-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <div class="BLOCK_CONTENT">
+                        <p>歸屬精度設定：<al-input class="FixedHight30px" holdertext="請輸入歸屬值精細度" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
+                    </div>
+                </div>
+            </div>
+            <br>
+
             <!--ROW 4-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <div class="BLOCK_CONTENT">
+                        <p>偏差值設定：<al-input class="FixedHight30px" holdertext="請輸入偏差值" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+
+            <!--ROW 5-->
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div @click="FinDesignMumbershipFuncitonEvent()"><al-button text="下一步"></al-button></div>
@@ -149,7 +159,7 @@
             <!--ROW 2-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
+                    <div @click="FinDesignFuzzyNumberViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>  
         </div>
@@ -167,13 +177,13 @@
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空規則</button></a></p>
+                        <p><br><a href="#" @click="ClearRule()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空規則</button></a></p>
                     </div>
                 </div>
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增規則</button></a></p>
+                        <p><br><a href="#" @click="AddRule()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增規則</button></a></p>
                     </div>
                 </div>
 
@@ -181,95 +191,96 @@
             <br>
 
             <!--ROW 2-->
-            <div class="CONTENT A ROW">
-                <div class="col2">
-                    <div class="BLOCK_CONTENT"><br>
-                        <p class="FixedP">Rulei</p>
+            <div  v-for="(item, index) in DesignRuleView.RuleList">
+                <div class="CONTENT A ROW" v-for="(subitem, subindex) in DesignRuleView.RuleList[index]">
+                    <div class="col2">
+                        <div v-if="subindex == 0" class="BLOCK_CONTENT"><br>
+                            <p class="FixedP">Rule{{index}}</p>
+                        </div>
+                        <div v-else class="BLOCK_CONTENT"><br>
+                            <p class="FixedP"> </p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">MF1</option>
-                            <option value="1">MF2</option>
-                            <option value="1">MF3</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">FN1</option>
-                            <option value="1">FN2</option>
-                            <option value="2">FN3</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col1">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">></option>
-                            <option value="1">=</option>
-                            <option value="2"><</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">0.1</option>
-                            <option value="1">0.2</option>
-                            <option value="2">0.3</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col1">
+                    <div class="col2">
                         <div class="BLOCK_CONTENT">
-                            <p> <select class="ABLSELECT">
+                            <p> <select class="ABLSELECT" v-model="subitem.SelectMFList">
+                                <option v-for="(ssubitem, ssubindex) in DesignRuleView.MFArray" v-bind:value="ssubindex">{{ssubitem.Name}}</option>
+                            </select></p>
+                        </div>
+                    </div>
+
+                    <div class="col2">
+                        <div class="BLOCK_CONTENT">
+                            <p> <select class="ABLSELECT" v-model="subitem.SelectFNList">
+                                <option v-for="(ssubitem, ssubindex) in DesignRuleView.MFArray[subitem.SelectMFList].FN" v-bind:value="ssubindex">FN{{ssubindex}}</option>
+                            </select></p>
+                        </div>
+                    </div>
+
+                    <div class="col1">
+                        <div class="BLOCK_CONTENT">
+                            <p> <select class="ABLSELECT" v-model="subitem.SelectPointLogic">
+                                <option value="0">></option>
+                                <option value="1">=</option>
+                                <option value="2"><</option>
+                            </select></p>
+                        </div>
+                    </div>
+
+                    <div class="col2">
+                        <div class="BLOCK_CONTENT">
+                            <p> <select class="ABLSELECT" v-model="subitem.SelectBaseValue">
+                                <option value="0">0.1</option>
+                                <option value="1">0.2</option>
+                                <option value="2">0.3</option>
+                            </select></p>
+                        </div>
+                    </div>
+
+                    <div class="col1">
+                        <div class="BLOCK_CONTENT">
+                            <p> <select class="ABLSELECT" v-model="subitem.OutLogic">
                                 <option value="0">0</option>
                                 <option value="1">1</option>
                             </select></p>
                         </div>
-                </div>
+                    </div>
 
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0"></option>
-                            <option value="1">AND</option>
-                            <option value="2">OR</option>
-                            <option value="3">XOR</option>
-                            <option value="4">NAND</option>
-                            <option value="5">NOR</option>
-                            <option value="6">XNOR</option>
-                        </select></p>
+                    <div class="col2">
+                        <div class="BLOCK_CONTENT" >
+                            <p> <select class="ABLSELECT" v-model="subitem.ConnectLogic">
+                                <option value="0"></option>
+                                <option value="1">AND</option>
+                                <option value="2">OR</option>
+                                <option value="3">XOR</option>
+                                <option value="4">NAND</option>
+                                <option value="5">NOR</option>
+                                <option value="6">XNOR</option>
+                            </select></p>
+                        </div>
+                    </div>
+
+                    <div class="col2">
+                        <div class="BLOCK_CONTENT">
+                            <p><a href="#" @click="AddSubRule(index)"><button class="ABLBTNSMALL"  type="button">增加關聯</button></a></p>
+                        </div>
+                    </div>
+
+                    <div class="col2">
+                        <div class="BLOCK_CONTENT">
+                            <p><a href="#" @click="RemoveRule(index,subindex)"><button class="ABLBTNSMALL"  type="button">移除關聯</button></a></p>
+                        </div>
                     </div>
                 </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">增加關聯</button></a></p>
-                    </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">移除MF</button></a></p>
-                    </div>
-                </div>
-
+                <br>
             </div>
             <br>
 
             <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
+                    <div @click="FinDesignRuleViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
         </div>

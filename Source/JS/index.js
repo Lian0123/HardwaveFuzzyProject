@@ -298,7 +298,14 @@ var Panel = new Vue({
             this.DesignMumbershipFuncitonView.TmpMFName = GetText;
         },
         AddNewMFEvent:function(GetText) {
-            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"_"+GetText, Name:"溫度", Type:"一般輸入", FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
+            for (const item of this.DesignMumbershipFuncitonView.MFArray) {
+                if(item.MFName == "_"+GetText){
+                    alert("MF名稱不可重複","錯誤");
+                    return;
+                }
+            }
+                
+            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"_"+GetText, Name: GetText, Type:"一般輸入", FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
         },
         RemoveMFEvent:function(index) {
             if(index == this.DesignMumbershipFuncitonView.MFArray.length){
@@ -414,6 +421,62 @@ var Panel = new Vue({
 
         },
         FinDesignFuzzyNumberViewEvent:function() {
+            for (const item of this.DesignFuzzyNumberView.MFArray) {
+                if(item.FN == 0){
+                    alert("每個MF中至少需輸入一個FN","錯誤");
+                    return;
+                }
+            }
+
+            this.DesignRuleView.MFArray = this.DesignFuzzyNumberView.MFArray;
+            this.NextViewEvent();
+        },
+        //----
+        ClearRule:function() {
+            this.DesignRuleView.RuleList = [];
+        },
+        AddRule:function() {
+            this.DesignRuleView.RuleList.push([{SelectMFList:0,SelectFNList:0,SelectPointLogic:0,SelectBaseValue:0,OutLogic:0,ConnectLogic:0}]);
+        },
+        AddSubRule:function(index) {
+            this.DesignRuleView.RuleList[index].push({SelectMFList:0,SelectFNList:0,SelectPointLogic:0,SelectBaseValue:0,OutLogic:0,ConnectLogic:0});
+        },
+        RemoveRule:function(index,subindex) {
+            if(this.DesignRuleView.RuleList[index].length == 1){
+                if(index == this.DesignRuleView.RuleList.length){
+                    this.DesignRuleView.RuleList.pop();
+                }else if(index == 0){
+                    this.DesignRuleView.RuleList = this.DesignRuleView.RuleList.slice(1,this.DesignRuleView.RuleList.length);
+                }else{
+                    this.DesignRuleView.RuleList = ([]).concat(this.DesignRuleView.RuleList.slice(0,index),this.DesignRuleView.RuleList.slice(index+1,this.DesignRuleView.RuleList.length))
+                }
+            }else{
+                if(subindex == this.DesignRuleView.RuleList[index].length){
+                    this.DesignRuleView.RuleList[index].pop();
+                }else if(subindex == 0){
+                    this.DesignRuleView.RuleList[index] = this.DesignRuleView.RuleList[index].slice(1,this.DesignRuleView.RuleList[index].length);
+                }else{
+                    this.DesignRuleView.RuleList[index] = ([]).concat(this.DesignRuleView.RuleList[index].slice(0,subindex),this.DesignRuleView.RuleList[index].slice(subindex+1,this.DesignRuleView.RuleList[index].length))
+                }
+                //強制Vue DOM 進行重新 render
+                Panel.DesignRuleView.RuleList.push()
+            }
+        },
+        FinDesignRuleViewEvent:function() {
+            for (let i = 0; i < this.DesignRuleView.RuleList.length; i++) {
+                for (let j = 0; j < this.DesignRuleView.RuleList[i].length-1; j++) {
+                    if(this.DesignRuleView.RuleList[i][j].ConnectLogic == 0){
+                        alert("Rule"+(i+1)+"第"+(j+1)+"列缺少連接邏輯","錯誤");
+                        return;
+                    }
+                }
+                
+                if(this.DesignRuleView.RuleList[i][this.DesignRuleView.RuleList[i].length-1].ConnectLogic != 0){
+                    alert("Rule"+(i+1)+"最後一列有多餘的連結邏輯","錯誤");
+                    return;
+                }
+            }
+
             this.NextViewEvent();
         },
         //----
