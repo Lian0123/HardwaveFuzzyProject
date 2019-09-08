@@ -160,6 +160,7 @@ var Panel = new Vue({
             IsView    : true , //是否顯示
             MFArray   : []   , //MF陣列
             AxisRate  : 0.1  , //預設Rate值
+            Offset    : 0    , //篇一輛
         },
         //建立FN值域界面
         DesignFuzzyNumberView:{
@@ -299,13 +300,20 @@ var Panel = new Vue({
         },
         AddNewMFEvent:function(GetText) {
             for (const item of this.DesignMumbershipFuncitonView.MFArray) {
-                if(item.MFName == "_"+GetText){
+                if(item.Name == GetText){
                     alert("MF名稱不可重複","錯誤");
                     return;
                 }
             }
-                
-            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"_"+GetText, Name: GetText, Type:"一般輸入", FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
+
+            if(this.DesignMumbershipFuncitonView.AxisRate<0 || this.DesignMumbershipFuncitonView.AxisRate>1){
+                alert("MF名稱不可重複","錯誤");
+                return;
+            }
+
+            this.DesignMumbershipFuncitonView.Offset = Math.round(this.DesignMumbershipFuncitonView.Offset);
+
+            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"MF_"+GetText, Name: GetText, Type:"一般輸入", FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
         },
         RemoveMFEvent:function(index) {
             if(index == this.DesignMumbershipFuncitonView.MFArray.length){
@@ -327,12 +335,6 @@ var Panel = new Vue({
         },
         //----
         SetFNEvent:function(index) {
-            /*
-            if(!((this.DesignFuzzyNumberView.MFArray[index].X0Tmp>0&&this.DesignFuzzyNumberView.MFArray[index].X1Tmp>0&&this.DesignFuzzyNumberView.MFArray[index].X2Tmp>0&&this.DesignFuzzyNumberView.MFArray[index].X3Tmp>0)&&(this.DesignFuzzyNumberView.MFArray[index].X0Tmp<=this.DesignFuzzyNumberView.MFArray[index].X1Tmp)&&(this.DesignFuzzyNumberView.MFArray[index].X1Tmp<=this.DesignFuzzyNumberView.MFArray[index].X2Tmp)&&(this.DesignFuzzyNumberView.MFArray[index].X2Tmp<=this.DesignFuzzyNumberView.MFArray[index].X3Tmp)&&(this.DesignFuzzyNumberView.MFArray[index].X0Tmp!=this.DesignFuzzyNumberView.MFArray[index].X3Tmp))){
-                alert("不可需要為梯行函數","錯誤");
-                return;
-            }*/
-
             this.DesignFuzzyNumberView.MFArray[index].FN.push({X0:this.DesignFuzzyNumberView.MFArray[index].X0Tmp,X1:this.DesignFuzzyNumberView.MFArray[index].X1Tmp,X2:this.DesignFuzzyNumberView.MFArray[index].X2Tmp,X3:this.DesignFuzzyNumberView.MFArray[index].X3Tmp});
 
             this.DesignFuzzyNumberView.MFArray[index].X0Tmp = 0;
@@ -340,10 +342,15 @@ var Panel = new Vue({
             this.DesignFuzzyNumberView.MFArray[index].X2Tmp = 0;
             this.DesignFuzzyNumberView.MFArray[index].X3Tmp = 0;
 
-            let TmpCol  = [];
-            let TmpAxis = ['x'];
-            let TmpIn   = [];
-            let LockUp  = false;
+            this.RenderC3Event(index)
+        },
+        RenderC3Event:function(index) {
+            let TmpCol    = [];
+            let TmpAxis   = ['x'];
+            let TmpIn     = [];
+            let LockUp    = false;
+            let LockCore  = false;
+            let LockDown  = false;
 
             for (let i = 0; i < this.DesignFuzzyNumberView.MFArray[index].FN.length; i++) {
                 if(TmpAxis.indexOf(this.DesignFuzzyNumberView.MFArray[index].FN[i].X0)<0){
@@ -381,15 +388,26 @@ var Panel = new Vue({
                 TmpCol.push(Datas);
 
                 for (let j = 1; j < TmpAxis.length; j++) {
-                    if(this.DesignFuzzyNumberView.MFArray[index].FN[k].X1 == TmpAxis[j]){
-                        TmpCol[k+1][j] = 1;
-                        if(this.DesignFuzzyNumberView.MFArray[index].FN[k].X1 != this.DesignFuzzyNumberView.MFArray[index].FN[k].X2)
+                    if(this.DesignFuzzyNumberView.MFArray[index].FN[k].X0 == TmpAxis[j]){
+                        TmpCol[k+1][j] = 0;
                         LockUp = true;
-                    }else if(this.DesignFuzzyNumberView.MFArray[index].FN[k].X2 == TmpAxis[j]){
+                    }else if(this.DesignFuzzyNumberView.MFArray[index].FN[k].X1 == TmpAxis[j]){
                         TmpCol[k+1][j] = 1;
                         LockUp = false;
-                    }else if(LockUp){
+                        LockCore = true;
+                    }else if(this.DesignFuzzyNumberView.MFArray[index].FN[k].X2 == TmpAxis[j]){
                         TmpCol[k+1][j] = 1;
+                        LockCore  = false;
+                        LockDown = true;
+                    }else if(this.DesignFuzzyNumberView.MFArray[index].FN[k].X3 == TmpAxis[j]){
+                        TmpCol[k+1][j] = 0;
+                        LockDown = false;
+                    }else if(LockUp){
+                        TmpCol[k+1][j] = (TmpAxis[j] - this.DesignFuzzyNumberView.MFArray[index].FN[k].X0)*(1/(this.DesignFuzzyNumberView.MFArray[index].FN[k].X1 - this.DesignFuzzyNumberView.MFArray[index].FN[k].X0));
+                    }else if(LockCore){
+                        TmpCol[k+1][j] = 1;
+                    }else if(LockDown){
+                        TmpCol[k+1][j] = (this.DesignFuzzyNumberView.MFArray[index].FN[k].X3 - TmpAxis[j])*(1/(this.DesignFuzzyNumberView.MFArray[index].FN[k].X3 - this.DesignFuzzyNumberView.MFArray[index].FN[k].X2));
                     }else{
                         TmpCol[k+1][j] = 0;
                     }
@@ -417,8 +435,23 @@ var Panel = new Vue({
                     types: 'area',
                 }
             });
-
-
+        },
+        ReomveMumbershipFuncitonEvent:function(index,subindex) {
+            console.log(this.DesignFuzzyNumberView.MFArray[index].FN);
+            
+            if(subindex == this.DesignFuzzyNumberView.MFArray[index].FN.length){
+                this.DesignFuzzyNumberView.MFArray[index].FN.pop();
+            }else if(subindex == 0){
+                this.DesignFuzzyNumberView.MFArray[index].FN = this.DesignFuzzyNumberView.MFArray[index].FN.slice(1,this.DesignFuzzyNumberView.MFArray[index].FN.length);
+            }else{
+                this.DesignFuzzyNumberView.MFArray[index].FN= ([]).concat(this.DesignFuzzyNumberView.MFArray[index].FN.slice(0,subindex),this.DesignFuzzyNumberView.MFArray[index].FN.slice(subindex+1,this.DesignFuzzyNumberView.MFArray[index].FN.length))
+            }
+            
+            console.log(this.DesignFuzzyNumberView.MFArray[index].FN);
+            //強制Vue DOM 進行重新 render
+            //this.DesignFuzzyNumberView.MFArray[index].FN.push()
+            //強制C3.js 重新更新
+            this.RenderC3Event(index)
         },
         FinDesignFuzzyNumberViewEvent:function() {
             for (const item of this.DesignFuzzyNumberView.MFArray) {
@@ -459,7 +492,7 @@ var Panel = new Vue({
                     this.DesignRuleView.RuleList[index] = ([]).concat(this.DesignRuleView.RuleList[index].slice(0,subindex),this.DesignRuleView.RuleList[index].slice(subindex+1,this.DesignRuleView.RuleList[index].length))
                 }
                 //強制Vue DOM 進行重新 render
-                Panel.DesignRuleView.RuleList.push()
+                this.DesignRuleView.RuleList.push()
             }
         },
         FinDesignRuleViewEvent:function() {

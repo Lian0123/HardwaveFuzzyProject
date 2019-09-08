@@ -107,7 +107,7 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                        <p>歸屬精度設定：<al-input class="FixedHight30px" holdertext="請輸入歸屬值精細度" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
+                        <p>歸屬精度設定：<input class="ABLINPUT" type="number" min="0" max="1" step="0.001" placeholder="請輸入歸屬值精細度" v-model="DesignMumbershipFuncitonView.AxisRate"/></p>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                        <p>偏差值設定：<al-input class="FixedHight30px" holdertext="請輸入偏差值" v-on:get-child-input-text="GetProjectNameTextEvent"></al-input></p>
+                        <p>偏差值設定：<input class="ABLINPUT" type="number" step="1" placeholder="請輸入偏差值" v-model="DesignMumbershipFuncitonView.Offset"/></p>
                     </div>
                 </div>
             </div>
@@ -136,23 +136,38 @@
         <!--設定FN資料-->
         <div v-if="DesignFuzzyNumberView.IsView">
             <br>
-            <!--ROW 1-->
-            <div v-for="(item, index) in DesignFuzzyNumberView.MFArray" class=" CONTENT A ROW">
-                <div class="col8">
-                    <div class="BLOCK_CONTENT">
-                        <div class='c3-editor' v-bind:id="item.MFName"></div>
-                    </div>
-                </div>  
-                <div class="col8">
-                    <div class="BLOCK_CONTENT">
-                    <b>MF名稱：</b>
-                    <p>FuzzyNumber：<input class="ABLINPUT" type="number" min="0" placeholder="X0" v-model.trim="item.X0Tmp"/></p>
-                    <p><input class="ABLINPUT" type="number" min="0" placeholder="X1" v-model.trim="item.X1Tmp"/></p>
-                    <p><input class="ABLINPUT" type="number" min="0" placeholder="X2" v-model.trim="item.X2Tmp"/></p>
-                    <p><input class="ABLINPUT" type="number" min="0" placeholder="X3" v-model.trim="item.X3Tmp"/></p>
-                    <div @click="SetFNEvent(index)"><al-button text="新增FN"></al-button></div>
+            <div v-for="(item, index) in DesignFuzzyNumberView.MFArray">
+                <!--ROW 1-->
+                <div class=" CONTENT A ROW">
+                    <div class="col8">
+                        <div class="BLOCK_CONTENT">
+                            <div class='c3-editor' v-bind:id="item.MFName"></div>
+                        </div>
+                    </div>  
+                    <div class="col8">
+                        <div class="BLOCK_CONTENT">
+                        <b>MF名稱：</b>
+                        <p>FuzzyNumber：<input class="ABLINPUT" type="number" min="0" placeholder="X0" v-model.trim="item.X0Tmp"/></p>
+                        <p><input class="ABLINPUT" type="number" min="0" placeholder="X1" v-model.trim="item.X1Tmp"/></p>
+                        <p><input class="ABLINPUT" type="number" min="0" placeholder="X2" v-model.trim="item.X2Tmp"/></p>
+                        <p><input class="ABLINPUT" type="number" min="0" placeholder="X3" v-model.trim="item.X3Tmp"/></p>
+                        <div @click="SetFNEvent(index,true)"><al-button text="新增FN"></al-button></div>
+                        </div>
                     </div>
                 </div>
+                <br>
+
+                <!--ROW 2-->
+                <div v-for="(subitem, subindex) in DesignFuzzyNumberView.MFArray[index].FN" class="CONTENT A ROW">
+                    <div class="col8">
+                        <p>data{{subindex}}(FN{{subindex}})</p>
+                    </div>
+                    <div class="col8">
+                        <p><a href="#" @click="ReomveMumbershipFuncitonEvent(index,subindex)"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">移除FN</button></a></p>
+                    </div>
+                </div>
+                <br>
+
             </div>
             <br>
 
