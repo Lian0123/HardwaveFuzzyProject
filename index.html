@@ -160,7 +160,7 @@
                 <!--ROW 2-->
                 <div v-for="(subitem, subindex) in DesignFuzzyNumberView.MFArray[index].FN" class="CONTENT A ROW">
                     <div class="col8">
-                        <p>data{{subindex}}(FN{{subindex}})</p>
+                        <p>data{{subindex+1}}(FN{{subindex}})</p>
                     </div>
                     <div class="col8">
                         <p><a href="#" @click="ReomveMumbershipFuncitonEvent(index,subindex)"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">移除FN</button></a></p>
@@ -246,9 +246,7 @@
                     <div class="col2">
                         <div class="BLOCK_CONTENT">
                             <p> <select class="ABLSELECT" v-model="subitem.SelectBaseValue">
-                                <option value="0">0.1</option>
-                                <option value="1">0.2</option>
-                                <option value="2">0.3</option>
+                                <option v-for="(ssubitem, ssubindex) in DesignRuleView.AxisRateArray" v-bind:value="ssubindex">{{ssubitem}}</option>
                             </select></p>
                         </div>
                     </div>
@@ -284,7 +282,7 @@
 
                     <div class="col2">
                         <div class="BLOCK_CONTENT">
-                            <p><a href="#" @click="RemoveRule(index,subindex)"><button class="ABLBTNSMALL"  type="button">移除關聯</button></a></p>
+                            <p><a href="#" @click="RemoveSubRule(index,subindex)"><button class="ABLBTNSMALL"  type="button">移除關聯</button></a></p>
                         </div>
                     </div>
                 </div>
@@ -301,7 +299,7 @@
         </div>
 
         <!--設定合併的FN-->
-        <div v-if="DesignDownDimView.IsView">
+        <div v-if="DesignDownDimView.IsView && DesignMumbershipFuncitonView.MFArray.length > 1">
             <br>
             <!--ROW 1-->
             <div class="CONTENT A ROW">
@@ -313,13 +311,13 @@
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空合併</button></a></p>
+                        <p><br><a href="#" @click="ClearDim()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空合併</button></a></p>
                     </div>
                 </div>
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增合併</button></a></p>
+                        <p><br><a href="#" @click="AddDim()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增合併</button></a></p>
                     </div>
                 </div>
 
@@ -327,19 +325,154 @@
             <br>
 
             <!--ROW 2-->
+            <div v-for="(item, index) in DesignDownDimView.DimList">
+                <div class="CONTENT A ROW" v-for="(subitem, subindex) in DesignDownDimView.DimList[index]">
+                    <div class="col2">
+                        <div v-if="subindex == 0" class="BLOCK_CONTENT"><br>
+                            <p class="FixedP">Dim{{index}}</p>
+                        </div>
+                        <div v-else class="BLOCK_CONTENT">
+                            <br>
+                        </div>
+                    </div>
+
+                    <div class="col4">
+                        <div class="BLOCK_CONTENT">
+                            <p> <select class="ABLSELECT" v-model="subitem.SelectMFList">
+                                <option v-for="(ssubitem, ssubindex) in DesignRuleView.MFArray" v-bind:value="ssubindex">{{ssubitem.Name}}</option>
+                            </select></p>
+                        </div>
+                    </div>
+
+                    <div class="col6">
+                        <div class="BLOCK_CONTENT">
+                            <p> <select class="ABLSELECT" v-model="subitem.SelectBaseValue">
+                                <option v-for="(ssubitem, ssubindex) in DesignRuleView.AxisRateArray" v-bind:value="ssubindex">權重{{ssubitem}}</option>
+                            </select></p>
+                        </div>
+                    </div>
+
+                    <div class="col2">
+                        <div class="BLOCK_CONTENT">
+                            <p><a href="#" @click="AddSubDim(index)"><button class="ABLBTNSMALL"  type="button">資加一維</button></a></p>
+                        </div>
+                    </div>
+
+                    <div class="col2">
+                        <div class="BLOCK_CONTENT">
+                            <p><a href="#" @click="RemoveSubDim(index)"><button class="ABLBTNSMALL"  type="button">減少一維</button></a></p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <br>
+
+            <!--ROW 3-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <div @click="FinDimDesignViewEvent()"><al-button text="下一步"></al-button></div>
+                </div>
+            </div>
+            
+        </div>
+        <div v-else-if="DesignDownDimView.IsView">
+            <!--ROW 1-->
+            <div class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <p>維度合併設計：檢測只有單一一維度</p>
+                    </div>
+                </div>
+
+
+            </div>
+            <br>
+
+            <!--ROW 2-->
+            <div class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <p>無操作選項，請直接按下下一步</p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+
+            <!--ROW 3-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
+                </div>
+            </div>
+        </div>
+
+        <!--設定NN化架構-->
+        <div v-if="DesignNeuralNetworkView.IsView && this.DesignMumbershipFuncitonView.HasBack">
+            <br>
+            <!--ROW 1-->
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <div class="BLOCK_CONTENT">
+                    <p>選擇要使用NN架構(不想設置請略過）</p>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+            <!--ROW 2-->
+            <div class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">使用仿CNN</button></a></p>
+                    </div>
+                </div>
+        
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">不使用(預設)</button></a></p>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+            <!--ROW 3-->
+            <div class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <p>接層設計</p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><br><a href="#" @click="ClearRule()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空層</button></a></p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p><br><a href="#" @click="AddRule()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增層</button></a></p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!--ROW 4-->
             <div class="CONTENT A ROW">
                 <div class="col2">
                     <div class="BLOCK_CONTENT"><br>
-                        <p class="FixedP">Rulei</p>
+                        <p class="FixedP">Layeri</p>
                     </div>
                 </div>
 
                 <div class="col3">
                     <div class="BLOCK_CONTENT">
                         <p> <select class="ABLSELECT">
-                            <option value="0">MF1</option>
-                            <option value="1">MF2</option>
-                            <option value="1">MF3</option>
+                            <option value="0">仿捲積層</option>
+                            <option value="1">仿池化層</option>
+                            <option value="2">仿ReLu層</option>
                         </select></p>
                     </div>
                 </div>
@@ -382,22 +515,21 @@
             </div>
             <br>
 
-            <!--ROW 3-->
+            <!--ROW 5-->
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
-        </div>
 
-        <!--設定NN化架構-->
-        <div v-if="DesignNeuralNetworkView.IsView">
-            <br>
+        </div>
+        <div v-else-if="DesignNeuralNetworkView.IsView">
+
             <!--ROW 1-->
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                    <p>選擇要使用NN架構(不想設置請略過）</p>
+                    <p>無回授架構，請按下一步</p>
                     </div>
                 </div>
             </div>
@@ -405,39 +537,10 @@
 
             <!--ROW 2-->
             <div class="CONTENT A ROW">
-                <div class="col8">
-                    <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">使用仿CNN</button></a></p>
-                    </div>
-                </div>
-        
-                <div class="col8">
-                    <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">使用類FNN</button></a></p>
-                    </div>
-                </div>
-            </div>
-            <br>
-
-            <!--ROW 3-->
-            <div class="CONTENT A ROW">
-                <div class="col8">
-                    <div class="BLOCK_CONTENT">
-                        <p>說明：</p>
-                        <p>(使用類型之說明)</p>
-                    </div>
-                </div>
-        
-            </div>
-            <br>
-
-            <!--ROW 4-->
-            <div class="CONTENT A ROW">
                 <div class="col16">
                     <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
-
         </div>
 
         <!--專案確認界面-->
@@ -456,7 +559,6 @@
             <!--ROW 2-->
             <div class="CONTENT A ROW">
                 <div class="col8">
-                    <p>MainText</p>
                 </div>
             </div>
             <br>

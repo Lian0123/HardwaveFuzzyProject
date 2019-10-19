@@ -291,13 +291,58 @@ select.ABLSELECT option{
   padding: 0% 0%;
 }
 
+.col5 {
+  width: calc(100% / 16 * 5);
+  padding: 0% 0%;
+}
+
+.col6 {
+  width: calc(100% / 16 * 6);
+  padding: 0% 0%;
+}
+
+.col7 {
+  width: calc(100% / 16 * 7);
+  padding: 0% 0%;
+}
+
 .col8 {
   width: calc(100% / 16 * 8);
   padding: 0% 0%;
 }
 
+.col9 {
+  width: calc(100% / 16 * 9);
+  padding: 0% 0%;
+}
+
+.col10 {
+  width: calc(100% / 16 * 10);
+  padding: 0% 0%;
+}
+
+.col11 {
+  width: calc(100% / 16 * 11);
+  padding: 0% 0%;
+}
+
 .col12 {
   width: calc(100% / 16 * 12);
+  padding: 0% 0%;
+}
+
+.col13 {
+  width: calc(100% / 16 * 13);
+  padding: 0% 0%;
+}
+
+.col14 {
+  width: calc(100% / 16 * 14);
+  padding: 0% 0%;
+}
+
+.col15 {
+  width: calc(100% / 16 * 15);
   padding: 0% 0%;
 }
 

@@ -157,10 +157,11 @@ var Panel = new Vue({
         },
         //建立MF值域界面
         DesignMumbershipFuncitonView:{
-            IsView    : true , //是否顯示
-            MFArray   : []   , //MF陣列
-            AxisRate  : 0.1  , //預設Rate值
-            Offset    : 0    , //篇一輛
+            IsView    : true  , //是否顯示
+            MFArray   : []    , //MF陣列
+            AxisRate  : 0.1   , //預設Rate值
+            Offset    : 0     , //篇一輛
+            HasBack   : false , //有無回授
         },
         //建立FN值域界面
         DesignFuzzyNumberView:{
@@ -169,13 +170,15 @@ var Panel = new Vue({
         },
         //設計各規則界面
         DesignRuleView:{
-            IsView   : true , //
-            MFArray  : []   , //
-            RuleList : []   , //
+            IsView          : true , //
+            MFArray         : []   , //
+            RuleList        : []   , //
+            AxisRateArray   : []   , //
         },
         //降低資料維度界面
         DesignDownDimView:{
-            IsView             : true              ,
+            IsView             : true , //
+            DimList            : []   , //
         },
         //設定神經網路界面
         DesignNeuralNetworkView:{
@@ -209,6 +212,7 @@ var Panel = new Vue({
         this.MakeProjectView.DateTime = NowDate.getFullYear() + '-' + (NowDate.getMonth()+1) + '-' + NowDate.getDate();
     },
     methods:{
+        //更新步驟之頁面
         ChangeViewEvent:function(index){
             this.ViewCounter = index;
             this.CloseAllView();
@@ -239,7 +243,7 @@ var Panel = new Vue({
                     break;
                 case 6:
                     this.DesignNeuralNetworkView.IsView = true;
-                    this.TilteText                = "STEP6 降低資料維度設定" ;
+                    this.TilteText                = "STEP6 使用神經網路設定" ;
                     break;
                 case 7:
                     this.ProjectCheckView.IsView = true;
@@ -257,19 +261,21 @@ var Panel = new Vue({
 
             if(this.DesignFuzzyNumberView.IsView){
                 this.intervalId = setTimeout(() => {this.InitC3View()}, 1000)
-                
             }
         },
+        //返回前一頁
         BackViewEvent:function(){
             if(this.ViewCounter>0){
                 this.ViewCounter--;
                 this.ChangeViewEvent(this.ViewCounter)
             }
         },
+        //前往下一頁
         NextViewEvent:function(){
             this.ViewCounter++;
             this.ChangeViewEvent(this.ViewCounter);
         },
+        //關閉所有頁面檢視
         CloseAllView:function() {
             this.IndexView.IsView                    = false ;
             this.MakeProjectView.IsView              = false ;
@@ -283,9 +289,24 @@ var Panel = new Vue({
             this.ErrorView.IsView                    = false ;
         },
         //----
+        
+        //=============================================================
+        //[MakeProjectView]建立專案用界面
+        //=============================================================
+
+        
+        /* 
+         * ------------------------------------------------------------------------
+         * |[GetProjectNameTextEvent]取得專案名稱
+         * ------------------------------------------------------------------------
+         * | 輸入：使用者輸入之文字
+         * | 輸出：無
+         * | 處理：將輸入文字由Vue元件
+         */
         GetProjectNameTextEvent:function(GetText) {
             this.MakeProjectView.ProjectName = GetText;
         },
+        //完成專案名稱設置對應檢查
         FinSetProjectNameEvent:function() {
             if(this.MakeProjectView.ProjectName == ""){
                 alert("專案名稱不可為空","錯誤");
@@ -304,14 +325,16 @@ var Panel = new Vue({
                     alert("MF名稱不可重複","錯誤");
                     return;
                 }
+
+                if(item.Type != "一般輸入"){
+                    this.DesignMumbershipFuncitonView.HasBack = true;
+                }
             }
 
             if(this.DesignMumbershipFuncitonView.AxisRate<0 || this.DesignMumbershipFuncitonView.AxisRate>1){
                 alert("MF名稱不可重複","錯誤");
                 return;
             }
-
-            this.DesignMumbershipFuncitonView.Offset = Math.round(this.DesignMumbershipFuncitonView.Offset);
 
             this.DesignMumbershipFuncitonView.MFArray.push({MFName:"MF_"+GetText, Name: GetText, Type:"一般輸入", FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
         },
@@ -330,6 +353,19 @@ var Panel = new Vue({
                 return;
             }
 
+            this.DesignMumbershipFuncitonView.AxisRate = Number(this.DesignMumbershipFuncitonView.AxisRate);
+            this.DesignMumbershipFuncitonView.Offset = Math.round(this.DesignMumbershipFuncitonView.Offset);
+
+            if(isNaN(this.DesignMumbershipFuncitonView.AxisRate)){
+                alert("單位欄位請輸入正常數值","錯誤");
+                return;
+            }
+
+            if(isNaN(this.DesignMumbershipFuncitonView.Offset)){
+                alert("偏移量欄位請輸入正常數值","錯誤");
+                return;
+            }
+            
             this.DesignFuzzyNumberView.MFArray = this.DesignMumbershipFuncitonView.MFArray;
             this.NextViewEvent();
         },
@@ -462,6 +498,11 @@ var Panel = new Vue({
             }
 
             this.DesignRuleView.MFArray = this.DesignFuzzyNumberView.MFArray;
+
+            for (let i = 0; i <= 1 ; i+=this.DesignMumbershipFuncitonView.AxisRate) {
+                this.DesignRuleView.AxisRateArray.push(Math.round(i*10)/10);
+            }
+
             this.NextViewEvent();
         },
         //----
@@ -474,7 +515,7 @@ var Panel = new Vue({
         AddSubRule:function(index) {
             this.DesignRuleView.RuleList[index].push({SelectMFList:0,SelectFNList:0,SelectPointLogic:0,SelectBaseValue:0,OutLogic:0,ConnectLogic:0});
         },
-        RemoveRule:function(index,subindex) {
+        RemoveSubRule:function(index,subindex) {
             if(this.DesignRuleView.RuleList[index].length == 1){
                 if(index == this.DesignRuleView.RuleList.length){
                     this.DesignRuleView.RuleList.pop();
@@ -509,7 +550,41 @@ var Panel = new Vue({
                     return;
                 }
             }
-
+            
+            this.NextViewEvent();
+        },
+        //----
+        ClearDim:function() {
+            this.DesignDownDimView.DimList = [];
+        },
+        AddDim:function() {
+            this.DesignDownDimView.DimList.push([{SelectMFList:0,SelectBaseValue:0}]);
+        },
+        AddSubDim:function(index) {
+            this.DesignDownDimView.DimList[index].push({SelectMFList:0,SelectBaseValue:0});
+        },
+        RemoveSubDim:function(index,subindex) {
+            if(this.DesignDownDimView.DimList[index].length == 1){
+                if(index == this.DesignDownDimView.DimList.length){
+                    this.DesignDownDimView.DimList.pop();
+                }else if(index == 0){
+                    this.DesignDownDimView.DimList = this.DesignDownDimView.DimList.slice(1,this.DesignDownDimView.DimList.length);
+                }else{
+                    this.DesignDownDimView.DimList = ([]).concat(this.DesignDownDimView.DimList.slice(0,index),this.DesignDownDimView.DimList.slice(index+1,this.DesignDownDimView.DimList.length))
+                }
+            }else{
+                if(subindex == this.DesignDownDimView.DimList[index].length){
+                    this.DesignDownDimView.DimList[index].pop();
+                }else if(subindex == 0){
+                    this.DesignDownDimView.DimList[index] = this.DesignDownDimView.DimList[index].slice(1,this.DesignDownDimView.DimList[index].length);
+                }else{
+                    this.DesignDownDimView.DimList[index] = ([]).concat(this.DesignDownDimView.DimList[index].slice(0,subindex),this.DesignDownDimView.DimList[index].slice(subindex+1,this.DesignDownDimView.DimList[index].length))
+                }
+                //強制Vue DOM 進行重新 render
+                this.DesignDownDimView.DimList.push()
+            }
+        },
+        FinDimDesignViewEvent:function() {
             this.NextViewEvent();
         },
         //----
