@@ -79,22 +79,14 @@
 
             <!--ROW 2-->
             <div v-for="(item, index) in DesignMumbershipFuncitonView.MFArray" class="CONTENT A ROW">
-                <div class="col8">
+                <div class="col10">
                     <div class="BLOCK_CONTENT"><br>
                         <p class="FixedP">{{item.Name}}</p>
                     </div>
                 </div>
 
-                <div class="col4">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select v-model="item.Type" class="ABLSELECT">
-                            <option value="一般輸入">一般輸入</option>
-                            <option value="回授輸入">回授輸入</option>
-                        </select></p>
-                    </div>
-                </div>
 
-                <div class="col4">
+                <div class="col6">
                     <div class="BLOCK_CONTENT">
                         <p @click="RemoveMFEvent(index)"><a href="#"><button class="ABLBTNSMALL"  type="button">移除MF</button></a></p>
                     </div>
@@ -125,6 +117,20 @@
 
 
             <!--ROW 5-->
+            <div class="CONTENT A ROW">
+
+                <div class="col16">
+                    <div class="BLOCK_CONTENT">
+                        <p>回授設定：<select v-model="DesignMumbershipFuncitonView.HasBack" class="ABLSELECT">
+                            <option value="0">不使用</option>
+                            <option value="1">使用</option>
+                        </select></p>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+            <!--ROW 6-->
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div @click="FinDesignMumbershipFuncitonEvent()"><al-button text="下一步"></al-button></div>
@@ -415,25 +421,46 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                    <p>選擇要使用NN架構(不想設置請略過）</p>
+                    <p>選擇要使用CNN架構(不想設置請略過）</p>
                     </div>
                 </div>
             </div>
             <br>
 
             <!--ROW 2-->
-            <div class="CONTENT A ROW">
-                <div class="col8">
-                    <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">使用仿CNN</button></a></p>
+            <div class="CONTENT A ROW" v-for="(item, index) in DesignNeuralNetworkView.LayerList">
+                <div class="col2">
+                    <div v-if="subindex == 0" class="BLOCK_CONTENT"><br>
+                        <p class="FixedP">第{{index}}層</p>
+                    </div>
+                    <div v-else class="BLOCK_CONTENT">
+                        <br>
                     </div>
                 </div>
-        
-                <div class="col8">
+
+                <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">不使用(預設)</button></a></p>
+                        <p> <select class="ABLSELECT" v-model="item.SelectLayerType">
+                            <option v-for="(subitem, subindex) in DesignRuleView.LayerTypeArray" v-bind:value="subindex">{{subitem}}</option>
+                        </select></p>
                     </div>
                 </div>
+
+                <div class="col6">
+                    <!--If    -->
+                    <div v-if="item.SelectLayerType == '0'" class="BLOCK_CONTENT">
+                        <p> <select class="ABLSELECT" v-model="subitem.SelectLayerSum">
+                            <option v-for="(ssubitem, ssubindex) in subitem.SelectLayerAllSum" v-bind:value="ssubindex">大小{{ssubitem}}*{{ssubitem}}</option>
+                        </select></p>
+                    </div>
+                </div>
+
+                <div class="col2">
+                    <div class="BLOCK_CONTENT">
+                        <p><a href="#" @click="RemoveLayer(index)"><button class="ABLBTNSMALL"  type="button">移除以下</button></a></p>
+                    </div>
+                </div>
+
             </div>
             <br>
 
@@ -447,68 +474,13 @@
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#" @click="ClearRule()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空層</button></a></p>
+                        <p><br><a href="#" @click="ClearLayer()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">清空網路層</button></a></p>
                     </div>
                 </div>
 
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
-                        <p><br><a href="#" @click="AddRule()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增層</button></a></p>
-                    </div>
-                </div>
-
-            </div>
-
-            <!--ROW 4-->
-            <div class="CONTENT A ROW">
-                <div class="col2">
-                    <div class="BLOCK_CONTENT"><br>
-                        <p class="FixedP">Layeri</p>
-                    </div>
-                </div>
-
-                <div class="col3">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">仿捲積層</option>
-                            <option value="1">仿池化層</option>
-                            <option value="2">仿ReLu層</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col3">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT">
-                            <option value="0">FN1</option>
-                            <option value="1">FN2</option>
-                            <option value="2">FN3</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col4">
-                    <div class="BLOCK_CONTENT">
-                        <div class="BLOCK_CONTENT">
-                                <p> <select class="ABLSELECT">
-                                        <option value="0">權重0.0</option>
-                                        <option value="1">權重0.1</option>
-                                        <option value="2">權重0.2</option>
-                                        <option value="5">權重0.5</option>
-                                    </select></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">資加一維</button></a></p>
-                    </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p><a href="#"><button class="ABLBTNSMALL"  type="button">減少一維</button></a></p>
+                        <p><br><a href="#" @click="AddLayer()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增網路層</button></a></p>
                     </div>
                 </div>
 
@@ -518,7 +490,7 @@
             <!--ROW 5-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
+                    <div @click="FinDesignNeuralNetworkViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
 
@@ -558,7 +530,22 @@
     
             <!--ROW 2-->
             <div class="CONTENT A ROW">
-                <div class="col8">
+                <div class="col16">
+                    <p>專案名：{{MakeProjectView.ProjectName}}</p>
+                    <p>偏移值、基底值：</p>
+                    <p>MF：</p>
+                </div>    
+                <br>
+
+                <div class="col16">
+                    <p>FN：[0,1,2,3]、</p>
+    
+                    <p>Rule設定：</p>
+    
+                    <p>降為度權重：</p>
+    
+                    <p>使用網路模型：</p>
+    
                 </div>
             </div>
             <br>

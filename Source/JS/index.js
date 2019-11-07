@@ -161,7 +161,7 @@ var Panel = new Vue({
             MFArray   : []    , //MF陣列
             AxisRate  : 0.1   , //預設Rate值
             Offset    : 0     , //篇一輛
-            HasBack   : false , //有無回授
+            HasBack   : 0     , //有無回授
         },
         //建立FN值域界面
         DesignFuzzyNumberView:{
@@ -182,7 +182,10 @@ var Panel = new Vue({
         },
         //設定神經網路界面
         DesignNeuralNetworkView:{
-            IsView             : true              ,
+            IsView               : true                   , //
+            LayerList            : []                     , //
+            LayerTypeArray       : ["Conv","ReLu","Pool"] , //
+            MatrixRow            : 0                      , //
         },
         //專案確認界面
         ProjectCheckView:{
@@ -324,10 +327,6 @@ var Panel = new Vue({
                 if(item.Name == GetText){
                     alert("MF名稱不可重複","錯誤");
                     return;
-                }
-
-                if(item.Type != "一般輸入"){
-                    this.DesignMumbershipFuncitonView.HasBack = true;
                 }
             }
 
@@ -585,6 +584,43 @@ var Panel = new Vue({
             }
         },
         FinDimDesignViewEvent:function() {
+            this.ClearLayer();
+            let TmpMatrixSum = 0;
+
+            for (let i = 0; i < this.DesignFuzzyNumberView.MFArray.length; i++) {
+                TmpMatrixSum += this.DesignFuzzyNumberView.MFArray[i].FN.length
+            }
+
+            this.DesignNeuralNetworkView.MatrixRow = Math.ceil(Math.sqrt(TmpMatrixSum));
+            this.NextViewEvent();
+        },
+        //----
+        ClearLayer:function() {
+            this.DesignNeuralNetworkView.LayerList = [];
+        },
+        AddLayer:function() {
+            let TmpArray = [];
+            if(this.DesignNeuralNetworkView.LayerList.length > 0){
+                if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum < 1){
+                    alert("前層總行列數不可小於1");
+                    return;
+                }
+
+                for(let i=0;i<this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum;i++){
+                    TmpArray.push(i);
+                }
+            }else{
+                for(let i=0;i<this.DesignNeuralNetworkView.MatrixRow;i++){
+                    TmpArray.push(i);
+                }
+            }
+
+            this.DesignNeuralNetworkView.LayerList.push({SelectLayerType:"ReLu",SelectLayerAllSum:TmpArray.reverse(),SelectLayerSum:0});
+        },
+        RemoveLayer:function(index){
+            this.DesignNeuralNetworkView.LayerList.splice(index);
+        },
+        FinDesignNeuralNetworkViewEvent:function() {
             this.NextViewEvent();
         },
         //----
