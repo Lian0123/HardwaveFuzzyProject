@@ -1,11 +1,12 @@
 var d3 = require("d3");
 var c3 = require("c3");
-//var FuzzyNumberView = 
+/*
 var jsonUri = "data:text/plain;base64,"+window.btoa(JSON.stringify(partJson));
 
 particlesJS.load('particles-js', jsonUri, function() {
     console.log('callback - particles.js config loaded');
 });
+*/
 
 var ALI = Vue.component('al-input', {
     template: '<input v-bind:class="GetComponentInputClass" type="text" v-model.trim="InputText"  v-bind:placeholder="holdertext" />',
@@ -147,7 +148,7 @@ var Panel = new Vue({
         FuzzyNumberView:{},
         //首頁
         IndexView  :{
-            IsView: true,
+            IsView: true, //頁面是否顯示
         },
         //建立專案用界面
         MakeProjectView: {
@@ -158,9 +159,9 @@ var Panel = new Vue({
         //建立MF值域界面
         DesignMumbershipFuncitonView:{
             IsView    : true  , //是否顯示
-            MFArray   : []    , //MF陣列
+            MFArray   : []    , //MF陣列 {MFName:編號 Name: 資料名, FN:FN點資料,C3:C3表格物件}
             AxisRate  : 0.1   , //預設Rate值
-            Offset    : 0     , //篇一輛
+            Offset    : 0     , //偏移量
             HasBack   : 0     , //有無回授
         },
         //建立FN值域界面
@@ -170,37 +171,38 @@ var Panel = new Vue({
         },
         //設計各規則界面
         DesignRuleView:{
-            IsView          : true , //
-            MFArray         : []   , //
-            RuleList        : []   , //
-            AxisRateArray   : []   , //
+            IsView          : true , //頁面是否顯示
+            MFArray         : []   , //MF陣列
+            RuleList        : []   , //規則陣列 2維陣列 [{SelectMFList:MF變號,SelectFNList:FN編號,SelectPointLogic:邏輯運算子編號,SelectBaseValue:規則基底值編號,OutLogic:輸出邏輯值,ConnectLogic:連接邏輯編號}]
+            AxisRateArray   : []   , //規則刻度陣列
         },
         //降低資料維度界面
         DesignDownDimView:{
-            IsView             : true , //
-            DimList            : []   , //
+            IsView             : true , //頁面是否顯示
+            DimList            : []   , //合成維度資訊陣列 2維陣列 [{SelectMFList:選擇MF編號,SelectBaseValue:偏移量}]
         },
         //設定神經網路界面
         DesignNeuralNetworkView:{
-            IsView               : true                   , //
-            LayerList            : []                     , //
-            LayerTypeArray       : ["Conv","ReLu","Pool"] , //
-            MatrixRow            : 0                      , //
+            IsView               : true                   , //頁面是否顯示
+            LayerList            : []                     , //網路層接資料 {SelectLayerType:選擇該層Type,SelectLayerAllSum:收縮該層的可行層數,SelectLayerSum:選擇的Kernel層數,WindowSize:Layer Size}
+            LayerTypeArray       : ["Conv","ReLu","Pool"] , //網路層的型別
+            MatrixRow            : 0                      , //單行Row暫存
         },
         //專案確認界面
         ProjectCheckView:{
-            IsView             : true            ,
+            IsView             : true                                       , //頁面是否顯示
+            ConnectLogicMap    : [' ','AND','OR','XOR','NAND','NOR','XNOR'] , //快速檢測
+            PointLogicMap      : ['>','=','<']
         },
         //輸出專案檔案頁面
         ExportProjectView:{
-            IsView             : true            ,
+            IsView             : true            , //頁面是否顯示
         },
         //錯誤訊息頁面
         ErrorView:{
-            IsView             : true      ,
+            IsView             : true            , //頁面是否顯示
 
         },
-        //FuzzyNumberView:
     },
     mounted() {
         //if ...
@@ -335,7 +337,7 @@ var Panel = new Vue({
                 return;
             }
 
-            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"MF_"+GetText, Name: GetText, Type:"一般輸入", FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
+            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"MF_"+GetText, Name: GetText, FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
         },
         RemoveMFEvent:function(index) {
             if(index == this.DesignMumbershipFuncitonView.MFArray.length){
@@ -498,8 +500,9 @@ var Panel = new Vue({
 
             this.DesignRuleView.MFArray = this.DesignFuzzyNumberView.MFArray;
 
-            for (let i = 0; i <= 1 ; i+=this.DesignMumbershipFuncitonView.AxisRate) {
-                this.DesignRuleView.AxisRateArray.push(Math.round(i*10)/10);
+            for (let i = 0; i < 1 ; i+=this.DesignMumbershipFuncitonView.AxisRate) {
+                //this.DesignRuleView.AxisRateArray.push(Math.round(i*1/(this.DesignMumbershipFuncitonView.AxisRate))/(1/(this.DesignMumbershipFuncitonView.AxisRate)));
+                this.DesignRuleView.AxisRateArray.push(Math.round((i*1000))/1000);
             }
 
             this.NextViewEvent();
@@ -537,9 +540,14 @@ var Panel = new Vue({
         },
         FinDesignRuleViewEvent:function() {
             for (let i = 0; i < this.DesignRuleView.RuleList.length; i++) {
-                for (let j = 0; j < this.DesignRuleView.RuleList[i].length-1; j++) {
-                    if(this.DesignRuleView.RuleList[i][j].ConnectLogic == 0){
+                let TmpLogic = this.DesignRuleView.RuleList[i][0].OutLogic;
+                for (let j = 0; j < this.DesignRuleView.RuleList[i].length; j++) {
+                    if(this.DesignRuleView.RuleList[i][j].ConnectLogic == 0 && j<this.DesignRuleView.RuleList[i].length-1){
                         alert("Rule"+(i+1)+"第"+(j+1)+"列缺少連接邏輯","錯誤");
+                        return;
+                    }
+                    if(this.DesignRuleView.RuleList[i][j].OutLogic != TmpLogic){
+                        alert("Rule"+(i+1)+"輸出邏輯不一致","錯誤");
                         return;
                     }
                 }
@@ -569,7 +577,7 @@ var Panel = new Vue({
                 }else if(index == 0){
                     this.DesignDownDimView.DimList = this.DesignDownDimView.DimList.slice(1,this.DesignDownDimView.DimList.length);
                 }else{
-                    this.DesignDownDimView.DimList = ([]).concat(this.DesignDownDimView.DimList.slice(0,index),this.DesignDownDimView.DimList.slice(index+1,this.DesignDownDimView.DimList.length))
+                    this.DesignDownDimView.DimList = ([]).concat(this.DesignDownDimView.DimList.slice(0,index),this.DesignDownDimView.DimList.slice(index+1,this.DesignDownDimView.DimList.length));
                 }
             }else{
                 if(subindex == this.DesignDownDimView.DimList[index].length){
@@ -580,10 +588,17 @@ var Panel = new Vue({
                     this.DesignDownDimView.DimList[index] = ([]).concat(this.DesignDownDimView.DimList[index].slice(0,subindex),this.DesignDownDimView.DimList[index].slice(subindex+1,this.DesignDownDimView.DimList[index].length))
                 }
                 //強制Vue DOM 進行重新 render
-                this.DesignDownDimView.DimList.push()
+                this.DesignDownDimView.DimList.push();
             }
         },
         FinDimDesignViewEvent:function() {
+            for (let i = 0; i < this.DesignDownDimView.DimList.length; i++) {
+                if(this.DesignDownDimView.DimList[i].length < 2){
+                    alert("維度資料至少需要2筆以上","錯誤");
+                    return;
+                }
+            }
+
             this.ClearLayer();
             let TmpMatrixSum = 0;
 
@@ -591,7 +606,7 @@ var Panel = new Vue({
                 TmpMatrixSum += this.DesignFuzzyNumberView.MFArray[i].FN.length
             }
 
-            this.DesignNeuralNetworkView.MatrixRow = Math.ceil(Math.sqrt(TmpMatrixSum));
+            this.DesignNeuralNetworkView.MatrixRow = Math.ceil(Math.sqrt(TmpMatrixSum*(this.DesignRuleView.AxisRateArray.length-1)));
             this.NextViewEvent();
         },
         //----
@@ -601,26 +616,55 @@ var Panel = new Vue({
         AddLayer:function() {
             let TmpArray = [];
             if(this.DesignNeuralNetworkView.LayerList.length > 0){
-                if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum < 1){
-                    alert("前層總行列數不可小於1");
-                    return;
-                }
 
-                for(let i=0;i<this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum;i++){
-                    TmpArray.push(i);
+                if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerType == 1){
+                    this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum = 0;
+                    let TmpBefore = this.DesignNeuralNetworkView.MatrixRow;
+                   
+                    for(let i=this.DesignNeuralNetworkView.LayerList.length-1;i>=0;i--){
+                        if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType != 1){
+                            TmpBefore = this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum.length-1];
+                            break;
+                        }
+                    }
+
+                    for(let i=0;i<TmpBefore+1;i++){
+                        TmpArray.push(i+1);
+                    }
+                }else{
+                    if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum < 1){
+                        alert("前層總行列數不可小於1");
+                        return;
+                    }
+
+                    for(let i=0;i<this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum;i++){
+                        TmpArray.push(i+1);
+                    }
                 }
+                
+                this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].IsEdit = false;
             }else{
                 for(let i=0;i<this.DesignNeuralNetworkView.MatrixRow;i++){
-                    TmpArray.push(i);
+                    TmpArray.push(i+1);
                 }
             }
 
-            this.DesignNeuralNetworkView.LayerList.push({SelectLayerType:"ReLu",SelectLayerAllSum:TmpArray.reverse(),SelectLayerSum:0});
+            this.DesignNeuralNetworkView.LayerList.push({SelectLayerType:"0",SelectLayerAllSum:TmpArray.reverse(),SelectLayerSum:0,WindowSize:0,IsEdit:true});
         },
         RemoveLayer:function(index){
             this.DesignNeuralNetworkView.LayerList.splice(index);
+            if(this.DesignNeuralNetworkView.LayerList.length>0)
+                this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].IsEdit = true;
         },
         FinDesignNeuralNetworkViewEvent:function() {
+            for(let i=0;i<this.DesignNeuralNetworkView.LayerList.length;i++){
+                if(i==0){
+                    this.DesignNeuralNetworkView.LayerList[i].WindowSize = this.DesignNeuralNetworkView.MatrixRow - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] +1;
+                }else{
+                    this.DesignNeuralNetworkView.LayerList[i].WindowSize = this.DesignNeuralNetworkView.LayerList[i-1].WindowSize - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1;
+                }
+            }
+
             this.NextViewEvent();
         },
         //----

@@ -421,50 +421,14 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                    <p>選擇要使用CNN架構(不想設置請略過）</p>
+                    <p>選擇要使用CNN架構(不想設置請略過)</p>
                     </div>
                 </div>
             </div>
             <br>
 
             <!--ROW 2-->
-            <div class="CONTENT A ROW" v-for="(item, index) in DesignNeuralNetworkView.LayerList">
-                <div class="col2">
-                    <div v-if="subindex == 0" class="BLOCK_CONTENT"><br>
-                        <p class="FixedP">第{{index}}層</p>
-                    </div>
-                    <div v-else class="BLOCK_CONTENT">
-                        <br>
-                    </div>
-                </div>
 
-                <div class="col4">
-                    <div class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT" v-model="item.SelectLayerType">
-                            <option v-for="(subitem, subindex) in DesignRuleView.LayerTypeArray" v-bind:value="subindex">{{subitem}}</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col6">
-                    <!--If    -->
-                    <div v-if="item.SelectLayerType == '0'" class="BLOCK_CONTENT">
-                        <p> <select class="ABLSELECT" v-model="subitem.SelectLayerSum">
-                            <option v-for="(ssubitem, ssubindex) in subitem.SelectLayerAllSum" v-bind:value="ssubindex">大小{{ssubitem}}*{{ssubitem}}</option>
-                        </select></p>
-                    </div>
-                </div>
-
-                <div class="col2">
-                    <div class="BLOCK_CONTENT">
-                        <p><a href="#" @click="RemoveLayer(index)"><button class="ABLBTNSMALL"  type="button">移除以下</button></a></p>
-                    </div>
-                </div>
-
-            </div>
-            <br>
-
-            <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col8">
                     <div class="BLOCK_CONTENT">
@@ -481,6 +445,81 @@
                 <div class="col4">
                     <div class="BLOCK_CONTENT">
                         <p><br><a href="#" @click="AddLayer()"><button class="ABLBTNSMALL" class="FixedHight30px" type="button">新增網路層</button></a></p>
+                    </div>
+                </div>
+
+            </div>
+            <br>
+
+            <div class="CONTENT A ROW">
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p>第0層</p>
+                    </div>
+                </div>
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p>自池化運算</p>
+                    </div>
+                </div>
+
+                <div class="col6">
+                    <div class="BLOCK_CONTENT">
+                        <p>總層大小{{DesignNeuralNetworkView.MatrixRow}}*{{DesignNeuralNetworkView.MatrixRow}}(Kernel：2*2)</p>
+                    </div>
+                </div>
+
+                <div class="col2">
+                    <div class="BLOCK_CONTENT">
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!--ROW 3-->
+            <div class="CONTENT A ROW" v-for="(item, index) in DesignNeuralNetworkView.LayerList">
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <br><p class="FixedP">第{{index+1}}層</p>
+                    </div>
+                </div>
+
+                <div v-if="item.IsEdit" class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p> <select class="ABLSELECT" v-model="item.SelectLayerType">
+                            <option v-for="(subitem, subindex) in DesignNeuralNetworkView.LayerTypeArray" v-bind:value="subindex">{{subitem}}</option>
+                        </select></p>
+                    </div>
+                </div>
+                <div v-else class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p>{{DesignNeuralNetworkView.LayerTypeArray[item.SelectLayerType]}}</p>
+                    </div>
+                </div>
+
+                <div v-if="item.IsEdit" class="col6">
+                    <div v-if="item.SelectLayerType != '1'" class="BLOCK_CONTENT">
+                        <p> <select class="ABLSELECT" v-model="item.SelectLayerSum">
+                            <option v-for="(subitem, subindex) in item.SelectLayerAllSum" v-bind:value="subindex">Kernel大小{{subitem}}*{{subitem}}</option>
+                        </select></p>
+                    </div>
+                    <div v-else class="BLOCK_CONTENT">
+                        <p>不適用</p>
+                    </div>
+                </div>
+                <div v-else class="col6">
+                    <div v-if="item.SelectLayerType != '1'" class="BLOCK_CONTENT">
+                        <p>Kernel大小{{item.SelectLayerAllSum[item.SelectLayerSum]}}*{{item.SelectLayerAllSum[item.SelectLayerSum]}}</p>
+                    </div>
+                    <div v-else class="BLOCK_CONTENT">
+                        <p>不適用</p>
+                    </div>
+                </div>
+
+                <div class="col2">
+                    <div class="BLOCK_CONTENT">
+                        <p><a href="#" @click="RemoveLayer(index)"><button class="ABLBTNSMALL"  type="button">移除以下</button></a></p>
                     </div>
                 </div>
 
@@ -522,7 +561,7 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                    <p>專案確認</p>
+                    <h2>專案確認</h2>
                     </div>
                 </div>
             </div>
@@ -531,21 +570,66 @@
             <!--ROW 2-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <p>專案名：{{MakeProjectView.ProjectName}}</p>
-                    <p>偏移值、基底值：</p>
-                    <p>MF：</p>
-                </div>    
-                <br>
+                    <h3>專案設定：</h3>
+                    <p>專案名：{{MakeProjectView.ProjectName}}.sv</p>
+                    <p>偏移值：{{DesignMumbershipFuncitonView.Offset}}</p>
+                    <p>刻度值：{{DesignMumbershipFuncitonView.AxisRate}}</p>
+                    
+                </div>
+            </div>
+            <br>
 
+            <div class="CONTENT A ROW">
                 <div class="col16">
-                    <p>FN：[0,1,2,3]、</p>
+                    <h3>成員函數：</h3>
+                    <p v-for="(item, index) in DesignMumbershipFuncitonView.MFArray">{{item.MFName}}({{item.Name}})：<b v-for="subitem in item.FN">[{{subitem.X0}},{{subitem.X1}},{{subitem.X2}},{{subitem.X3}}]</b></b> </p>
+                </div>
+            </div>
+            <br>
+
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <h3>Rule設定：</h3>
+                    <p v-for="(item, index) in DesignRuleView.RuleList">
+                        <b v-for="(subitem, subindex) in item">
+                            <b v-if="subindex == 0">IF</b>
+                            MF{{subitem.SelectMFList}}_FN{{subitem.SelectFNList}}
+                            {{ProjectCheckView.PointLogicMap[subitem.SelectPointLogic]}}
+                            {{DesignRuleView.AxisRateArray[subitem.SelectBaseValue]}}
+                            <b v-if="subitem.ConnectLogic == 0"> THEN Out '{{subitem.OutLogic}}' To Bus[{{index}}]<br></b>
+                            <b v-else>{{ProjectCheckView.ConnectLogicMap[subitem.ConnectLogic]}}</b>
+                        </b>
+                    </p>
+                </div>
+            </div>
+            <br>
     
-                    <p>Rule設定：</p>
-    
-                    <p>降為度權重：</p>
-    
-                    <p>使用網路模型：</p>
-    
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <h3>降為度權重：</h3>
+                    <p v-for="(item, index) in DesignDownDimView.DimList">
+                        合併維度{{index}}：<br>
+                        <b v-for="(subitem, subindex) in DesignDownDimView.DimList[index]">MF{{subitem.SelectMFList}}：權重{{DesignRuleView.AxisRateArray[subitem.SelectBaseValue]}}<br></b>
+                    </p>
+                </div>
+            </div>
+            <br>
+
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <h3>使用網路模型：</h3>
+                    <p>
+                        <b>第0層：</b><br>
+                        功能：自池化擴張<br>
+                        前層大小：{{DesignNeuralNetworkView.MatrixRow}}*{{DesignNeuralNetworkView.MatrixRow}}<br>
+                        Kernel大小：2*2
+                    </p>
+                    <p v-for="(item, index) in DesignNeuralNetworkView.LayerList">
+                        <b>第{{index+1}}層：</b><br>
+                        功能：{{DesignNeuralNetworkView.LayerTypeArray[item.SelectLayerType]}}<br>
+                        前層大小：{{item.WindowSize}}*{{item.WindowSize}}<br>
+                        Kernel大小：<element v-if="item.SelectLayerType == 1">不適用</element><element v-else>{{item.SelectLayerAllSum[item.SelectLayerSum]}}*{{item.SelectLayerAllSum[item.SelectLayerSum]}}</element><br>
+                    </p>
                 </div>
             </div>
             <br>
