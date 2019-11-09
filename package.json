@@ -16,6 +16,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "install": "mkdir .file && mkdir OutFile",
+    "autorun": "nightwatch ./test/GetExampleCode.js",
     "start1": "electron main.js",
     "start": "electron2 main.js",
     "build_mac": "electron-packager . Image-Audio-Player --overwrite --out=Image-Audio-Player --platform=darwin --arch=x64 --asar=false ",
