@@ -163,6 +163,8 @@ var Panel = new Vue({
             AxisRate  : 0.1   , //預設Rate值
             Offset    : 0     , //偏移量
             HasBack   : 0     , //有無回授
+            UpSafe    : 1024  , //合理上界
+            DownSafe  : 0     , //合理下界
         },
         //建立FN值域界面
         DesignFuzzyNumberView:{
@@ -190,8 +192,8 @@ var Panel = new Vue({
         },
         //專案確認界面
         ProjectCheckView:{
-            IsView             : true                                       , //頁面是否顯示
-            ConnectLogicMap    : [' ','AND','OR','XOR','NAND','NOR','XNOR'] , //快速檢測
+            IsView             : true                   , //頁面是否顯示
+            ConnectLogicMap    : [' ','AND','OR','XOR'] , //快速檢測
             PointLogicMap      : ['>','=','<']
         },
         //輸出專案檔案頁面
@@ -512,10 +514,10 @@ var Panel = new Vue({
             this.DesignRuleView.RuleList = [];
         },
         AddRule:function() {
-            this.DesignRuleView.RuleList.push([{SelectMFList:0,SelectFNList:0,SelectPointLogic:0,SelectBaseValue:0,OutLogic:0,ConnectLogic:0}]);
+            this.DesignRuleView.RuleList.push([{SelectMFList:0,SelectFNList:0,SelectPointLogic:0,SelectBaseValue:0,OutLogic:1,ConnectLogic:0}]);
         },
         AddSubRule:function(index) {
-            this.DesignRuleView.RuleList[index].push({SelectMFList:0,SelectFNList:0,SelectPointLogic:0,SelectBaseValue:0,OutLogic:0,ConnectLogic:0});
+            this.DesignRuleView.RuleList[index].push({SelectMFList:0,SelectFNList:0,SelectPointLogic:0,SelectBaseValue:0,OutLogic:1,ConnectLogic:0});
         },
         RemoveSubRule:function(index,subindex) {
             if(this.DesignRuleView.RuleList[index].length == 1){
@@ -629,7 +631,7 @@ var Panel = new Vue({
                     }
 
                     for(let i=0;i<TmpBefore+1;i++){
-                        TmpArray.push(i+1);
+                        TmpArray.push(i+2);
                     }
                 }else{
                     if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum < 1){
@@ -638,17 +640,18 @@ var Panel = new Vue({
                     }
 
                     for(let i=0;i<this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum;i++){
-                        TmpArray.push(i+1);
+                        TmpArray.push(i+2);
                     }
                 }
                 
                 this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].IsEdit = false;
             }else{
                 for(let i=0;i<this.DesignNeuralNetworkView.MatrixRow;i++){
-                    TmpArray.push(i+1);
+                    TmpArray.push(i+2);
                 }
             }
 
+            TmpArray.pop();
             this.DesignNeuralNetworkView.LayerList.push({SelectLayerType:"0",SelectLayerAllSum:TmpArray.reverse(),SelectLayerSum:0,WindowSize:0,IsEdit:true});
         },
         RemoveLayer:function(index){
