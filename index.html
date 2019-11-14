@@ -109,12 +109,27 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                        <p>偏差值設定：<input class="ABLINPUT" type="number" step="1" placeholder="請輸入偏差值" v-model="DesignMumbershipFuncitonView.Offset"/></p>
+                        <p>偏移值設定：<input class="ABLINPUT" type="number" step="1" placeholder="請輸入偏差值" v-model="DesignMumbershipFuncitonView.Offset"/></p>
                     </div>
                 </div>
             </div>
             <br>
 
+            <!--ROW 4-->
+            <div class="CONTENT A ROW">
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <p>請輸入正常值下限：<input class="ABLINPUT" type="number" step="1" min="0" placeholder="請輸入下限值" v-model="DesignMumbershipFuncitonView.DownSafe"/></p>
+                    </div>
+                </div>
+
+                <div class="col8">
+                    <div class="BLOCK_CONTENT">
+                        <p>請輸入正常值上限：<input class="ABLINPUT" type="number" step="1" placeholder="請輸入上限值" v-model="DesignMumbershipFuncitonView.UpSafe"/></p>
+                    </div>
+                </div>
+            </div>
+            <br>
 
             <!--ROW 5-->
             <div class="CONTENT A ROW">
@@ -270,9 +285,9 @@
                         <div class="BLOCK_CONTENT" >
                             <p> <select class="ABLSELECT" v-model="subitem.ConnectLogic">
                                 <option value="0"></option>
-                                <option value="1">AND</option>
-                                <option value="2">OR</option>
-                                <option value="3">XOR</option>
+                                <option value="1">&</option>
+                                <option value="2">|</option>
+                                <option value="3">^</option>
                             </select></p>
                         </div>
                     </div>
@@ -601,7 +616,7 @@
             </div>
             <br>
     
-            <div class="CONTENT A ROW">
+            <div  v-if="DesignDownDimView.DimList.length > 0" class="CONTENT A ROW">
                 <div class="col16">
                     <h3>降為度權重：</h3>
                     <p v-for="(item, index) in DesignDownDimView.DimList">
@@ -612,7 +627,7 @@
             </div>
             <br>
 
-            <div class="CONTENT A ROW">
+            <div v-if="DesignNeuralNetworkView.LayerList.length > 0" class="CONTENT A ROW">
                 <div class="col16">
                     <h3>使用網路模型：</h3>
                     <p>
@@ -634,7 +649,7 @@
             <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
+                    <div @click="OutputFile()"><al-button text="匯出為sv檔"></al-button></div>
                 </div>
             </div>
     
@@ -647,7 +662,7 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                    <p>專案輸出完成</p>
+                    <p>專案已輸出完成</p>
                     </div>
                 </div>
             </div>
@@ -656,7 +671,7 @@
             <!--ROW 2-->   
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <div @click="ChangeViewEvent(0)"><al-button text="匯出為sv檔"></al-button></div>
+                    <div @click="ChangeViewEvent(0)"><al-button text="完成"></al-button></div>
                 </div>
             </div>
     
@@ -697,5 +712,5 @@
 </body>
 </html>
 
-<script src="./Source/JS/index.js"></script>
 <script src="./Source/JS/WriteSystemVreilogModule/ProgramDataDefine.js"></script>
+<script src="./Source/JS/index.js"></script>

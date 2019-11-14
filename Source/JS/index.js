@@ -1,5 +1,6 @@
 var d3 = require("d3");
 var c3 = require("c3");
+var fs = require("fs");
 /*
 var jsonUri = "data:text/plain;base64,"+window.btoa(JSON.stringify(partJson));
 
@@ -194,7 +195,8 @@ var Panel = new Vue({
         ProjectCheckView:{
             IsView             : true                   , //頁面是否顯示
             ConnectLogicMap    : [' ','AND','OR','XOR'] , //快速檢測
-            PointLogicMap      : ['>','=','<']
+            ConnectLogicOutMap : [' ','&&','||','^'] , //快速檢測
+            PointLogicMap      : ['>','==','<']
         },
         //輸出專案檔案頁面
         ExportProjectView:{
@@ -359,7 +361,7 @@ var Panel = new Vue({
             this.DesignMumbershipFuncitonView.AxisRate = Number(this.DesignMumbershipFuncitonView.AxisRate);
             this.DesignMumbershipFuncitonView.Offset = Math.round(this.DesignMumbershipFuncitonView.Offset);
 
-            if(isNaN(this.DesignMumbershipFuncitonView.AxisRate)){
+            if(isNaN(this.DesignMumbershipFuncitonView.AxisRate) && this.DesignMumbershipFuncitonView.AxisRate > 0){
                 alert("單位欄位請輸入正常數值","錯誤");
                 return;
             }
@@ -368,13 +370,56 @@ var Panel = new Vue({
                 alert("偏移量欄位請輸入正常數值","錯誤");
                 return;
             }
+
+            if(isNaN(this.DesignMumbershipFuncitonView.UpSafe) && this.DesignMumbershipFuncitonView.UpSafe > 0){
+                alert("下限值需為大於0的整數","錯誤");
+                return;
+            }
+
+            if(isNaN(this.DesignMumbershipFuncitonView.DownSafe) && this.DesignMumbershipFuncitonView.DownSafe > 0){
+                alert("下限值需為大於0的整數","錯誤");
+                return;
+            }
             
             this.DesignFuzzyNumberView.MFArray = this.DesignMumbershipFuncitonView.MFArray;
             this.NextViewEvent();
         },
         //----
         SetFNEvent:function(index) {
+            this.DesignFuzzyNumberView.MFArray[index].X0Tmp = Number(this.DesignFuzzyNumberView.MFArray[index].X0Tmp);
+            this.DesignFuzzyNumberView.MFArray[index].X1Tmp = Number(this.DesignFuzzyNumberView.MFArray[index].X1Tmp);
+            this.DesignFuzzyNumberView.MFArray[index].X2Tmp = Number(this.DesignFuzzyNumberView.MFArray[index].X2Tmp);
+            this.DesignFuzzyNumberView.MFArray[index].X3Tmp = Number(this.DesignFuzzyNumberView.MFArray[index].X3Tmp);
+
+            if(isNaN(this.DesignFuzzyNumberView.MFArray[index].X0Tmp) || isNaN(this.DesignFuzzyNumberView.MFArray[index].X1Tmp) || isNaN(this.DesignFuzzyNumberView.MFArray[index].X2Tmp) || isNaN(this.DesignFuzzyNumberView.MFArray[index].X3Tmp)){
+                alert("FN節點輸入需要為整數","錯誤");
+                return;
+            }
+
+            if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp < 0 || this.DesignFuzzyNumberView.MFArray[index].X1Tmp < 0 || this.DesignFuzzyNumberView.MFArray[index].X2Tmp < 0 || this.DesignFuzzyNumberView.MFArray[index].X3Tmp < 0){
+                alert("FN節點輸入需為大於等於0的整數","錯誤");
+                return;
+            }
+
+            if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp < this.DesignMumbershipFuncitonView.DownSafe || this.DesignFuzzyNumberView.MFArray[index].X1Tmp < this.DesignMumbershipFuncitonView.DownSafe || this.DesignFuzzyNumberView.MFArray[index].X2Tmp < this.DesignMumbershipFuncitonView.DownSafe || this.DesignFuzzyNumberView.MFArray[index].X3Tmp < this.DesignMumbershipFuncitonView.DownSafe){
+                alert("FN節點輸入需皆大於等於設定下界("+this.DesignMumbershipFuncitonView.DownSafe+")","錯誤");
+                return;
+            }
+        
+            if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp > this.DesignMumbershipFuncitonView.UpSafe || this.DesignFuzzyNumberView.MFArray[index].X1Tmp > this.DesignMumbershipFuncitonView.UpSafe || this.DesignFuzzyNumberView.MFArray[index].X2Tmp  > this.DesignMumbershipFuncitonView.UpSafe || this.DesignFuzzyNumberView.MFArray[index].X3Tmp  > this.DesignMumbershipFuncitonView.UpSafe){
+                alert("FN節點輸入需皆小於等於設定上界("+this.DesignMumbershipFuncitonView.UpSafe+")","錯誤");
+                return;
+            }
+
+            if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp > this.DesignFuzzyNumberView.MFArray[index].X1Tmp || this.DesignFuzzyNumberView.MFArray[index].X2Tmp > this.DesignFuzzyNumberView.MFArray[index].X3Tmp || this.DesignFuzzyNumberView.MFArray[index].X0Tmp > this.DesignFuzzyNumberView.MFArray[index].X3Tmp || this.DesignFuzzyNumberView.MFArray[index].X1Tmp > this.DesignFuzzyNumberView.MFArray[index].X2Tmp || (this.DesignFuzzyNumberView.MFArray[index].X0Tmp == this.DesignFuzzyNumberView.MFArray[index].X1Tmp && this.DesignFuzzyNumberView.MFArray[index].X1Tmp == this.DesignFuzzyNumberView.MFArray[index].X2Tmp) || (this.DesignFuzzyNumberView.MFArray[index].X3Tmp == this.DesignFuzzyNumberView.MFArray[index].X2Tmp && this.DesignFuzzyNumberView.MFArray[index].X2Tmp == this.DesignFuzzyNumberView.MFArray[index].X1Tmp)){
+                alert("不符合FN定義輸入","錯誤");
+                return;
+            }
+
             this.DesignFuzzyNumberView.MFArray[index].FN.push({X0:this.DesignFuzzyNumberView.MFArray[index].X0Tmp,X1:this.DesignFuzzyNumberView.MFArray[index].X1Tmp,X2:this.DesignFuzzyNumberView.MFArray[index].X2Tmp,X3:this.DesignFuzzyNumberView.MFArray[index].X3Tmp});
+            this.DesignFuzzyNumberView.MFArray[index].FN.sort(function (a, b) {
+                return  a.X0 - b.X0
+            });
 
             this.DesignFuzzyNumberView.MFArray[index].X0Tmp = 0;
             this.DesignFuzzyNumberView.MFArray[index].X1Tmp = 0;
@@ -390,6 +435,7 @@ var Panel = new Vue({
             let LockUp    = false;
             let LockCore  = false;
             let LockDown  = false;
+            let AreaData  = "";
 
             for (let i = 0; i < this.DesignFuzzyNumberView.MFArray[index].FN.length; i++) {
                 if(TmpAxis.indexOf(this.DesignFuzzyNumberView.MFArray[index].FN[i].X0)<0){
@@ -451,10 +497,15 @@ var Panel = new Vue({
                         TmpCol[k+1][j] = 0;
                     }
                 }
+
+                AreaData += "\"data"+(k+1)+"\":\"area\""
+                if(k != this.DesignFuzzyNumberView.MFArray[index].FN.length-1){
+                    AreaData += ","
+                }
             }
 
 
-            console.log(TmpCol);
+            console.log(AreaData);
 
             this.DesignFuzzyNumberView.MFArray[index].C3 = c3.generate({
                 bindto: "#"+this.DesignFuzzyNumberView.MFArray[index].MFName,
@@ -471,7 +522,9 @@ var Panel = new Vue({
                     },*/
                     x: 'x',
                     columns: TmpCol,
-                    types: 'area',
+                    types:JSON.parse("{"+AreaData+"}")
+                    
+                 
                 }
             });
         },
@@ -670,6 +723,13 @@ var Panel = new Vue({
 
             this.NextViewEvent();
         },
+        OutputFile:function(){
+            WriteFile();
+            fs.writeFileSync(__dirname + "/"+this.MakeProjectView.ProjectName+".sv",WrtieString,{flag:'w'});
+            alert("檔案已新增完成","通知");
+            this.ChangeViewEvent(0);
+            //Clear ALL
+        },
         //----
         InitC3View:function(){
             for (let i = 0; i < this.DesignFuzzyNumberView.MFArray.length; i++) {
@@ -680,8 +740,7 @@ var Panel = new Vue({
                     data: {
                         x: 'x',
                         columns: [
-                            ['x', '0','1', '2', '3', '4', '5'],
-                            ['data1', 0, 0, 0, 0, 0,0],
+                            
                         ],
                         types: {
                             data1: 'area',
