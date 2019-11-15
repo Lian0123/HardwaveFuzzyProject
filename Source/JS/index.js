@@ -166,6 +166,7 @@ var Panel = new Vue({
             HasBack   : 0     , //有無回授
             UpSafe    : 1024  , //合理上界
             DownSafe  : 0     , //合理下界
+            DevValue  : 10    , //位元數
         },
         //建立FN值域界面
         DesignFuzzyNumberView:{
@@ -360,7 +361,7 @@ var Panel = new Vue({
 
             this.DesignMumbershipFuncitonView.AxisRate = Number(this.DesignMumbershipFuncitonView.AxisRate);
             this.DesignMumbershipFuncitonView.Offset = Math.round(this.DesignMumbershipFuncitonView.Offset);
-
+            
             if(isNaN(this.DesignMumbershipFuncitonView.AxisRate) && this.DesignMumbershipFuncitonView.AxisRate > 0){
                 alert("單位欄位請輸入正常數值","錯誤");
                 return;
@@ -371,16 +372,40 @@ var Panel = new Vue({
                 return;
             }
 
-            if(isNaN(this.DesignMumbershipFuncitonView.UpSafe) && this.DesignMumbershipFuncitonView.UpSafe > 0){
+            if(isNaN(this.DesignMumbershipFuncitonView.UpSafe) || this.DesignMumbershipFuncitonView.UpSafe < 0){
                 alert("下限值需為大於0的整數","錯誤");
                 return;
             }
 
-            if(isNaN(this.DesignMumbershipFuncitonView.DownSafe) && this.DesignMumbershipFuncitonView.DownSafe > 0){
+            if(isNaN(this.DesignMumbershipFuncitonView.DownSafe) || this.DesignMumbershipFuncitonView.DownSafe < 0){
                 alert("下限值需為大於0的整數","錯誤");
                 return;
             }
+
+            if(this.DesignMumbershipFuncitonView.UpSafe > 2147483647){
+                alert("數值上限值需小於2147483647","錯誤");
+                return;
+            }
+
+            if(this.DesignMumbershipFuncitonView.DownSafe > 2147483647){
+                alert("數值下限值需小於2147483647","錯誤");
+                return;
+            }
+
+
+            if(this.DesignMumbershipFuncitonView.DownSafe >= this.DesignMumbershipFuncitonView.UpSafe){
+                alert("下限值需小於上限值","錯誤");
+                return;
+            }
+
+
+            this.DesignMumbershipFuncitonView.DevValue = 0;
+
+            for (let i = this.DesignMumbershipFuncitonView.UpSafe; (i >> 1) > 0 && this.DesignMumbershipFuncitonView.DevValue < 40; i = (i>>1)) {
+                this.DesignMumbershipFuncitonView.DevValue++;
+            }
             
+
             this.DesignFuzzyNumberView.MFArray = this.DesignMumbershipFuncitonView.MFArray;
             this.NextViewEvent();
         },
