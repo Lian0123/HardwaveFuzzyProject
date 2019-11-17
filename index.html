@@ -540,6 +540,19 @@
 
             <!--ROW 5-->
             <div class="CONTENT A ROW">
+
+                <div class="col4">
+                    <div class="BLOCK_CONTENT">
+                        <p>連線至ANN總節點：</p>
+                    </div>
+                </div>
+                <div class="col12">
+                    
+                </div>
+            </div>
+
+            <!--ROW 6-->
+            <div class="CONTENT A ROW">
                 <div class="col16">
                     <div @click="FinDesignNeuralNetworkViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
@@ -642,6 +655,18 @@
                         前層大小：{{item.WindowSize}}*{{item.WindowSize}}<br>
                         Kernel大小：<element v-if="item.SelectLayerType == 1">不適用</element><element v-else>{{item.SelectLayerAllSum[item.SelectLayerSum]}}*{{item.SelectLayerAllSum[item.SelectLayerSum]}}</element><br>
                     </p>
+
+                </div>
+            </div>
+            <br>
+
+
+            <div v-if="DesignNeuralNetworkView.LayerList.length > 0" class="CONTENT A ROW">
+                <div class="col16">
+                    <h3>需手動建立：</h3>
+                    <p>1.仿捲積運算的特徵值</p>
+                    <p>2.仿ANN連接節點</p>
+                    <p>3.自適應調整遮罩控制條件</p>
                 </div>
             </div>
             <br>

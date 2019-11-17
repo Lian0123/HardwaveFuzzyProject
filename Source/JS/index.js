@@ -191,6 +191,7 @@ var Panel = new Vue({
             LayerList            : []                     , //網路層接資料 {SelectLayerType:選擇該層Type,SelectLayerAllSum:收縮該層的可行層數,SelectLayerSum:選擇的Kernel層數,WindowSize:Layer Size}
             LayerTypeArray       : ["Conv","ReLu","Pool"] , //網路層的型別
             MatrixRow            : 0                      , //單行Row暫存
+            ConvArray            : []                     , //捲積運算偏移陣列
         },
         //專案確認界面
         ProjectCheckView:{
@@ -744,8 +745,27 @@ var Panel = new Vue({
                 }else{
                     this.DesignNeuralNetworkView.LayerList[i].WindowSize = this.DesignNeuralNetworkView.LayerList[i-1].WindowSize - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1;
                 }
-            }
 
+                if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 1 ){
+                    let BlockArea = Math.floor((this.DesignNeuralNetworkView.LayerList[i].WindowSize - this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum + 1) / this.DesignNeuralNetworkView.LayerList[i].WindowSize);
+                    let TmpOffsetArray = [];
+                    if(BlockArea > 1){
+                        this.DesignNeuralNetworkView.LayerList[i].Offset = BlockArea;
+                    }else{
+                        this.DesignNeuralNetworkView.LayerList[i].Offset = 0;
+                    }
+
+                    for(let j=0;j<BlockArea;j++){
+                        for(let j=0;j<BlockArea;j++){
+                            TmpOffsetArray.push(i*MatrixRow+j*BlockArea);
+                        }
+                    }
+                    this.DesignNeuralNetworkView.ConvArray.push(TmpOffsetArray);
+                    TmpOffsetArray = [];
+                }
+                
+            }
+            
             this.NextViewEvent();
         },
         OutputFile:function(){
