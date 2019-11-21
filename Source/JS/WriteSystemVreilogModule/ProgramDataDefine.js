@@ -456,32 +456,63 @@ var GetNeuralNetworkLayer = function GetExtraBits() {
 
     for(let i=0;i<Panel.DesignNeuralNetworkView.LayerList.length;i++){
         //Conv
-        let TepRegStr = "Tmp";
+        let TmpRegStr   = ["Tmp","Tmp2"];
+        let BeforeTmpStr
         let ConvCounter = 0;
+        let TmpRegStr    =  GetTmpInOut();
         if(Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 0){
-            let FutureMappingSum = Math.floor(Panel.DesignNeuralNetworkView.LayerList[i].WindowSize / SelectLayerSum)*Math.floor(Panel.DesignNeuralNetworkView.LayerList[i].WindowSize / SelectLayerSum);
+            
+            let FutureMappingSum = Math.floor(Panel.DesignNeuralNetworkView.LayerList[i].WindowSize / Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum])*Math.floor(Panel.DesignNeuralNetworkView.LayerList[i].WindowSize / Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum]);
             BeforeBranchSum = FutureMappingSum;
-            TepRegStr = GetConvOutMatrixStr(i);
-            ConvCounter++;
+            // = GetConvOutMatrixStr(i);
+            /*
+            let BeforeTmp = 0;
+            
+            //第v個的仿捲積
+            for(let v=0;v<ConvCounter-1;v++){
+                
+                for(let j=0;j<this.DesignNeuralNetworkView.ConvArray[v].length;j++){
+
+                    BeforeTmp += this.DesignNeuralNetworkView.ConvArray[v][j];
+                }
+            }
+            // Get Offset[ConvCounter]
+
+            //本次的FutureMapping總數
             for(let j=0;j<FutureMappingSum;j++){
+                Offset = this.DesignNeuralNetworkView.ConvArray[ConvCounter][j];
+            }
+            */
+            
+            for(let j=0;j<FutureMappingSum;j++){
+                ConvMatrixStr = GetConvMatrixStr(i,ConvCounter,j,TmpRegStr[0],TmpRegStr[1]);
+
+                if(i == 0){
+                    ConvInMatrixStr = "Tmp";
+                }else{
+                    ConvInMatrixStr = BeforeTmpStr;
+                }
+
                 ReturnStr += `
                 ConvolutionUnit #(.Row_Limit(`+Panel.DesignNeuralNetworkView.MatrixRow+`),.WindowsSize(`+Panel.DesignNeuralNetworkView.LayerList[i].WindowSize+`)) Layer`+(i+1)+`ID`+(j+1)+`(.clk(subclk[`+(i+1)+`]),
                     .InMatrix(
-                        `+GetConvInMatrixStr(i,ConvCounter)+`
+                        `+ConvInMatrixStr+`
                     ),
                     .EigenMatrix(
-                        `+GetEigenMatrixStr(i,ConvCounter)+`
+                        `+GetEigenMatrixStr(i)+`
                     ),
                     .OutMatrix({
-                        `+TepRegStr+`
+                        `+ConvMatrixStr[1]+`
                     })
                 ); \n\n`
             }
+
+            ConvCounter++;
         //Pool
         }else if(Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 1){
             for(let j=0;j<BeforeBranchSum;j++){
                 ReturnStr += `
-                PoolUnit        #(.Row_Limit(`+Panel.DesignNeuralNetworkView.MatrixRow+`),.WindowsSize(2),.ComputRow(4)) Layer`+(i+1)+`ID`+(j+1)+`(.clk(subclk[3]),
+                PoolUnit        #(.Row_Limit(`+Panel.DesignNeuralNetworkView.MatrixRow+`),.WindowsSize(`+Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum]+`),.ComputRow(`+(Panel.DesignNeuralNetworkView.MatrixRow-Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum]+1)+`)) Layer`+(i+1)+`ID`+(j+1)+`(.clk(subclk[`+(i+1)+`]),
                     .InMatrix({
                         `+GetPoolInOutMatrixStr(i,"IN")+`
                     }),.OutMatrix({
@@ -498,16 +529,66 @@ var GetNeuralNetworkLayer = function GetExtraBits() {
     return ReturnStr;
 };
 
+var GetTmpInOut = function GetTmpInOut(LayerID){
+    if(LayerID%2 == 0){
+        return ["Tmp","Tmp2"];
+    }
+    return ["Tmp2","Tmp"];
+};
+
 var GetEigenMatrixStr = function GetEigenMatrixStr(LayerID){
     let ReturnStr = "";
 
-    ReturnStr += "" + (Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum*Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum) + "'b";
-    for(let i=0;i<(Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum*Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum);i++){
+    ReturnStr += "" + (Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum]*Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum]) + "'b";
+    for(let i=0;i<(Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum]*Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[LayerID].SelectLayerSum]);i++){
         ReturnStr += "0";
     }
 
     return ReturnStr;
 };
+
+GetConvMatrixStr = function GetConvMatrixStr(LayerID,ConvCounter,MappingCounter,InTmpstr,OutTmpStr){
+    let ReturnArray  = ["",""]; //In, Out
+    let ReturnInStr  = "";
+    let ReturnOutStr = "";
+    for(let n=0;n<5;n++){
+        ReturnInStr  += InTmpstr  + "[";
+        ReturnOutStr += OutTmpStr + "[";
+        let TmpOffset    = "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+Panel.DesignNeuralNetworkView.MatrixRow+"*"+n+")";
+        let TmpOffsetEnd = "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+Panel.DesignNeuralNetworkView.MatrixRow+"*"+n+")";
+        //this.DesignNeuralNetworkView.ConvArray
+        /*
+        for(let k=0;k<MappingCounter;k++){
+            TmpOffset    += "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+j+")+0"
+            TmpOffsetEnd += "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+j+")+"+Panel.DesignNeuralNetworkView.MatrixRow+"-1";
+            
+        }
+        */
+        TmpOffset    += ConvArrays[ConvCounter][MappingCounter];
+        TmpOffsetEnd += ConvArrays[ConvCounter][MappingCounter] + (Panel.DesignNeuralNetworkView.LayerList[LayerID].WindowSize)+"-1";
+        //TmpOffsetEnd += "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+j+")+"+Panel.DesignNeuralNetworkView.MatrixRow+"-1";
+
+        ReturnInStr  += TmpOffset + ":" + TmpOffsetEnd;
+        ReturnOutStr += TmpOffset + ":" + TmpOffsetEnd;
+        ReturnInStr  += "]";
+        ReturnOutStr += "]";
+        TmpOffset = "";
+        TmpOffsetEnd = "";
+        
+        if(i != this.DesignNeuralNetworkView.LayerList[LayerID].Offset-1 && j != this.DesignNeuralNetworkView.LayerList[LayerID].Offset-1){
+            ReturnInStr  += ",";
+            ReturnOutStr += ","
+        }
+    }
+
+    if(LayerID < 0){
+        ReturnInStr = "Tmp";
+    }
+
+    return [ReturnInStr,ReturnOutStr];
+}
+
+// ->ww5 Out
 //層、第n個捲積、第m個Mapping
 var GetConvInMatrixStr = function GetConvInMatrixStr(LayerID,ConvCounter,MappingCounter){
     let ReturnStr = "";
@@ -543,12 +624,17 @@ var GetConvInMatrixStr = function GetConvInMatrixStr(LayerID,ConvCounter,Mapping
             ReturnStr += TmpBlockStr + "[";
             let TmpOffset    = "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+Panel.DesignNeuralNetworkView.MatrixRow+"*"+n+")";
             let TmpOffsetEnd = "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+Panel.DesignNeuralNetworkView.MatrixRow+"*"+n+")";
-
-            for(let k=0;k<ConvCounter;k++){
+            //this.DesignNeuralNetworkView.ConvArray
+            /*
+            for(let k=0;k<MappingCounter;k++){
                 TmpOffset    += "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+j+")+0"
                 TmpOffsetEnd += "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+j+")+"+Panel.DesignNeuralNetworkView.MatrixRow+"-1";
                 
             }
+            */
+            TmpOffset    += ConvArrays[ConvCounter][MappingCounter];
+            TmpOffsetEnd += ConvArrays[ConvCounter][MappingCounter] + (Panel.DesignNeuralNetworkView.LayerList[LayerID].WindowSize)+"-1";
+            //TmpOffsetEnd += "("+Panel.DesignNeuralNetworkView.MatrixRow+"*"+j+")+"+Panel.DesignNeuralNetworkView.MatrixRow+"-1";
 
             ReturnStr += TmpOffset + ":" + TmpOffsetEnd;
             ReturnStr += "]";
