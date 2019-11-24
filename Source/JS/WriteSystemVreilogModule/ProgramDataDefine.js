@@ -65,7 +65,7 @@ var WriteFile = function WriteFile(){
     module HardFuzzyCtl(clk,clearError,ctlSave,`+GetAllDevPortStr()+`OutBus,OutErrorBus,NeuralBus);`;
     }else{
         WrtieString += `
-    module HardFuzzyCtl(clk,clearError,ctlSave,dev1,dev2,dev3,OutBus,OutErrorBus);`;
+    module HardFuzzyCtl(clk,clearError,ctlSave,`+GetAllDevPortStr()+`,OutBus,OutErrorBus);`;
     }
 
     WrtieString += `
@@ -348,7 +348,7 @@ var GetDownDimWireStr = function GetDownDimWireStr() {
     }
 
     for (let i = 0; i < TmpCounter; i++) {
-        ReturnStr += "wire      [RateValue-1:0] DownDimNode"+(i+1)+";\n";
+        ReturnStr += "\t\twire      [RateValue-1:0] DownDimNode"+(i+1)+";\n";
     }
     
     return ReturnStr;
@@ -359,7 +359,8 @@ var NeuralNetworkRegsStr = function NeuralNetworkRegsStr() {
     let ReturnStr = "";
     for(let i=0; i<Panel.DesignRuleView.MFArray.length; i++){
         for(let j=0; j<Panel.DesignRuleView.MFArray[i].FN.length; j++){
-            ReturnStr += "\t\treg       [RateValue-1:0] TmpMF"+(i+1)+"FN"+(j+1)+"MappingData;\nreg       [10-1:0] CtlMF1FN1MappingData;\n";
+            ReturnStr += "\t\treg       [RateValue-1:0] TmpMF"+(i+1)+"FN"+(j+1)+"MappingData;\n"
+            ReturnStr += "\t\treg       [RateValue-1:0] CtlMF"+(i+1)+"FN"+(j+1)+"MappingData;\n";
         }
     }
 
@@ -383,7 +384,7 @@ var GetANNWireStr = function GetANNWireStr() {
     }
 
     for (let i = 0; i < TmpCounter; i++) {
-        ReturnStr += "wire      [RateValue-1:0] ANNNode"+(i+1)+";\n";
+        ReturnStr += "\t\twire      [RateValue-1:0] ANNNode"+(i+1)+";\n";
     }
     
     return ReturnStr;
@@ -452,8 +453,8 @@ var GetExtraBits = function GetExtraBits() {
 
     let TmpMatrixSum = 0;
 
-    for (let i = 0; i < this.DesignFuzzyNumberView.MFArray.length; i++) {
-        TmpMatrixSum += this.DesignFuzzyNumberView.MFArray[i].FN.length
+    for (let i = 0; i < Panel.DesignFuzzyNumberView.MFArray.length; i++) {
+        TmpMatrixSum += Panel.DesignFuzzyNumberView.MFArray[i].FN.length
     }
 
     if(Panel.DesignNeuralNetworkView.MatrixRow-Math.sqrt(TmpMatrixSum*(Panel.DesignRuleView.AxisRateArray.length-1)) != 0){
@@ -472,7 +473,7 @@ var GetExtraBits = function GetExtraBits() {
 var GetNeuralNetworkLayer = function GetNeuralNetworkLayer() {
     console.log("--Write GetNeuralNetworkLayer--");
     let ReturnStr = "";
-    let BeforeBranchSum = 0;
+    let BeforeBranchSum = 1;
     let TmpRegStr   = ["Tmp","Tmp2"];
     let NextMappMatrixStr = "Tmp2";
     
@@ -480,11 +481,11 @@ var GetNeuralNetworkLayer = function GetNeuralNetworkLayer() {
         //Conv
         let BeforeTmpStr = "";
         let ConvCounter  = 0;
-        let TmpRegStr    = GetTmpInOut();
+        let TmpRegStr    = GetTmpInOut(i);
         if(Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 0){
             
             let FutureMappingSum = Math.floor(Panel.DesignNeuralNetworkView.LayerList[i].WindowSize / Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum])*Math.floor(Panel.DesignNeuralNetworkView.LayerList[i].WindowSize / Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum]);
-            BeforeBranchSum = FutureMappingSum;
+            BeforeBranchSum *= FutureMappingSum;
             
             for(let j=0;j<FutureMappingSum;j++){
                 ConvOutMatrixStr = GetOutConvMatrixStr(i,ConvCounter,j,TmpRegStr[1]);
@@ -515,7 +516,7 @@ var GetNeuralNetworkLayer = function GetNeuralNetworkLayer() {
 
         //Pool
         }else if(Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 1){
-            TmpRegStr   =  GetTmpInOut();
+            TmpRegStr   =  GetTmpInOut(i);
 
             if(i == 0){
                 PoolInMatrixStr = TmpRegStr[0];
@@ -527,16 +528,17 @@ var GetNeuralNetworkLayer = function GetNeuralNetworkLayer() {
                 ReturnStr += `
                 PoolUnit        #(.Row_Limit(`+Panel.DesignNeuralNetworkView.MatrixRow+`),.WindowsSize(`+Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum]+`),.ComputRow(`+(Panel.DesignNeuralNetworkView.MatrixRow-Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerSum]+1)+`)) Layer`+(i+1)+`ID`+(j+1)+`(.clk(subclk[`+(i+1)+`]),
                     .InMatrix({
-                        `+GetPoolInOutMatrixStr(i,ConvCounter,TmpRegStr[0])+`
+                        `+GetPoolInOutMatrixStr(i,ConvCounter,j,TmpRegStr[0])+`
                     }),.OutMatrix({
-                        `+GetPoolInOutMatrixStr(i,ConvCounter,TmpRegStr[1])+`
+                        `+GetPoolInOutMatrixStr(i,ConvCounter,j,TmpRegStr[1])+`
                     })
                 );\n\n`
             }
 
         //ReLu
         }else if(Panel.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 2){
-            ReturnStr += `ReLuUnit        #(.Row_Limit(`+Panel.DesignNeuralNetworkView.MatrixRow+`)) Layer`+(i+1)+`ID1(.clk(subclk[`+(i+1)+`]),.InMatrix(`+TestInTmpNN(i)+`),.OutMatrix(`+TestOutTmpNN(i)+`))\n\n`;
+            let TmpRegStr    = GetTmpInOut(i);
+            ReturnStr += `\t\tReLuUnit        #(.Row_Limit(`+Panel.DesignNeuralNetworkView.MatrixRow+`)) Layer`+(i+1)+`ID1(.clk(subclk[`+(i+1)+`]),.InMatrix(`+TmpRegStr[0]+`),.OutMatrix(`+TmpRegStr[1]+`))\n\n`;
         }
     }
 
@@ -563,7 +565,7 @@ GetOutConvMatrixStr = function GetOutConvMatrixStr(LayerID,ConvCounter,MappingCo
         for(let n=0;n<5;n++){
             for(let m=0;m<Panel.DesignNeuralNetworkView.LayerList[LayerID-1].WindowSize;m++){
                 ReturnStr  += OutTmpStr + "["+(Panel.DesignNeuralNetworkView.MatrixRow*Panel.DesignNeuralNetworkView.MatrixRow*n) + (Panel.DesignNeuralNetworkView.LayerList[LayerID-1].WindowSize*m) + Panel.DesignNeuralNetworkView.AllConvArray[ConvCounter][MappingCounter] + ":" + (Panel.DesignNeuralNetworkView.MatrixRow*Panel.DesignNeuralNetworkView.MatrixRow*n) + (Panel.DesignNeuralNetworkView.LayerList[LayerID-1].WindowSize*m) + Panel.DesignNeuralNetworkView.AllConvArray[ConvCounter][MappingCounter] + (Panel.DesignNeuralNetworkView.LayerList[LayerID-1].WindowSize)+"-1]";            
-                if(i != this.DesignNeuralNetworkView.LayerList[LayerID-1].Offset-1 && j != this.DesignNeuralNetworkView.LayerList[LayerID-1].Offset-1){
+                if(n != Panel.DesignNeuralNetworkView.LayerList[LayerID-1].Offset-1 && m != Panel.DesignNeuralNetworkView.LayerList[LayerID-1].Offset-1){
                     ReturnStr  += ",";
                 }
             }
@@ -576,13 +578,13 @@ GetOutConvMatrixStr = function GetOutConvMatrixStr(LayerID,ConvCounter,MappingCo
 
 
 
-var GetPoolInOutMatrixStr = function GetPoolInOutMatrixStr(LayerID,ConvCounter,MatrixType){
+var GetPoolInOutMatrixStr = function GetPoolInOutMatrixStr(LayerID,ConvCounter,MappingCounter,MatrixType){
     console.log("--Write GetPoolInMatrixStr--");
     let ReturnStr  = "";
     for(let n=0;n<5;n++){
         for(let m=0;m<Panel.DesignNeuralNetworkView.LayerList[LayerID].WindowSize;m++){
             ReturnStr  += MatrixType+"["+(Panel.DesignNeuralNetworkView.MatrixRow*Panel.DesignNeuralNetworkView.MatrixRow*n) + (Panel.DesignNeuralNetworkView.LayerList[LayerID].WindowSize*m) + Panel.DesignNeuralNetworkView.AllConvArray[ConvCounter][MappingCounter] + ":" + (Panel.DesignNeuralNetworkView.MatrixRow*Panel.DesignNeuralNetworkView.MatrixRow*n) + (Panel.DesignNeuralNetworkView.LayerList[LayerID].WindowSize*m) + Panel.DesignNeuralNetworkView.AllConvArray[ConvCounter][MappingCounter] + (Panel.DesignNeuralNetworkView.LayerList[LayerID].WindowSize)+"-1]";            
-            if(i != this.DesignNeuralNetworkView.LayerList[LayerID].Offset-1 && j != this.DesignNeuralNetworkView.LayerList[LayerID].Offset-1){
+            if(n != Panel.DesignNeuralNetworkView.LayerList[LayerID].Offset-1 && m != Panel.DesignNeuralNetworkView.LayerList[LayerID].Offset-1){
                 ReturnStr  += ",";
             }
         }
@@ -649,8 +651,8 @@ var GetFuzzyRuleStr = function GetFuzzyRuleStr(){
     for (let i = 0; i < Panel.DesignRuleView.RuleList.length; i++) {
         for (let j = 0; j < Panel.DesignRuleView.RuleList[i].length; j++) {
             if(j == 0){
-                CommentStr += `\n\t\t\t//IF`;
-                CodeStr    += `\t\t\tif(` ;
+                CommentStr += `\n\t\t//IF`;
+                CodeStr    += `\t\tif(` ;
             }
             
             if(Panel.DesignRuleView.RuleList[i][j].ConnectLogic != 0){

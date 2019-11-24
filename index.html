@@ -542,7 +542,7 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                        <p>連線至ANN總節點：<input class="ABLINPUT" type="number" min="0" step="1" placeholder="請輸入ANN總節點數" v-model="DesignMumbershipFuncitonView.ANNSum"/></p>
+                        <p>連線至ANN總節點：<input class="ABLINPUT" type="number" min="0" step="1" placeholder="請輸入ANN總節點數" v-model="DesignNeuralNetworkView.ANNSum"/></p>
                     </div>
                 </div>
             </div>
@@ -650,7 +650,7 @@
                         <b>第{{index+1}}層：</b><br>
                         功能：{{DesignNeuralNetworkView.LayerTypeArray[item.SelectLayerType]}}<br>
                         此層大小：{{item.ThisHave}}*{{item.ThisHave}}<br>
-                        下層大小：{{item.WindowSize}}*{{item.WindowSize}}<br>
+                        <!--下層大小：<element v-if="item.SelectLayerType == 1">不適用</element><element v-else>{{item.WindowSize}}*{{item.WindowSize}}</element><br>-->
                         Kernel大小：<element v-if="item.SelectLayerType == 1">不適用</element><element v-else>{{item.SelectLayerAllSum[item.SelectLayerSum]}}*{{item.SelectLayerAllSum[item.SelectLayerSum]}}</element><br>
                     </p>
 

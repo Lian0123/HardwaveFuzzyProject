@@ -571,6 +571,7 @@ var Panel = new Vue({
 
             this.DesignRuleView.MFArray = this.DesignFuzzyNumberView.MFArray;
 
+            this.DesignRuleView.AxisRateArray = [];
             for (let i = 0; i < 1 ; i+=this.DesignMumbershipFuncitonView.AxisRate) {
                 //this.DesignRuleView.AxisRateArray.push(Math.round(i*1/(this.DesignMumbershipFuncitonView.AxisRate))/(1/(this.DesignMumbershipFuncitonView.AxisRate)));
                 this.DesignRuleView.AxisRateArray.push(Math.round((i*1000))/1000);
@@ -700,20 +701,10 @@ var Panel = new Vue({
         AddLayer:function() {
             let TmpArray = [];
             if(this.DesignNeuralNetworkView.LayerList.length > 0){
-
+                
                 if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerType == 1){
                     this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum = 0;
-                   
-                    for(let i=this.DesignNeuralNetworkView.LayerList.length-1;i>=0;i--){
-                        if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType != 1){
-                            TmpArray = this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum.reverse();
-                            break;
-                        }
-                    }
-
-                    //無意義的一致性調整
-                    //TmpArray.push("0");
-
+                    TmpArray = this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerAllSum.reverse();
                 }else{
                     if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum < 1){
                         alert("前層總行列數不可小於1");
@@ -723,8 +714,10 @@ var Panel = new Vue({
                     for(let i=0;i<=this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum;i++){
                         TmpArray.push(i+2);
                     }
-                    
+
                     TmpArray.pop();
+
+                    this.DesignNeuralNetworkView.TmpMatrixRow = TmpArray.length+1;
                 }
                 
                 this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].IsEdit = false;
@@ -759,21 +752,22 @@ var Panel = new Vue({
                 }
 
                 if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 0){
-                    let BlockArea = 1 + Math.floor((this.DesignNeuralNetworkView.LayerList[i].ThisHave - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1) / this.DesignNeuralNetworkView.LayerList[i].WindowSize);
+                    // 18 - 10 + 1 ->9  17/9 
+                    let BlockArea = Math.floor(this.DesignNeuralNetworkView.LayerList[i].ThisHave/(this.DesignNeuralNetworkView.LayerList[i].ThisHave - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1));
                     let TmpOffsetArray = [];
 
                     console.log(BlockArea)
 
-                    if(BlockArea > 1){
-                        this.DesignNeuralNetworkView.LayerList[i].Offset = BlockArea;
+                    if(BlockArea > 0){
+                        this.DesignNeuralNetworkView.LayerList[i].Offset = this.DesignNeuralNetworkView.LayerList[i].ThisHave - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1;
                     }else{
                         this.DesignNeuralNetworkView.LayerList[i].Offset = 0;
                     }
 
-                    if(BlockArea > 1){
+                    if(BlockArea > 0){
                         for(let j=0;j<BlockArea;j++){
                             for(let k=0;k<BlockArea;k++){
-                                TmpOffsetArray.push(j*this.DesignNeuralNetworkView.MatrixRow+k*BlockArea);
+                                TmpOffsetArray.push(j*this.DesignNeuralNetworkView.MatrixRow*this.DesignNeuralNetworkView.LayerList[i].Offset+k*this.DesignNeuralNetworkView.LayerList[i].Offset);
                             }
                         }
                         this.DesignNeuralNetworkView.ConvArray.push(TmpOffsetArray);
@@ -794,6 +788,7 @@ var Panel = new Vue({
                 let AllArray = [];
 
                 MapArrayValue *= this.DesignNeuralNetworkView.ConvArray[i].length;
+                
                 MapArrayValueArray.push(MapArrayValue);
                 
                 for(let j=0;j<MapArrayValue;j++){                    
@@ -803,15 +798,31 @@ var Panel = new Vue({
                 this.DesignNeuralNetworkView.AllConvArray.push(AllArray);
 
                 // 4 4 9
+                /*
                 for(let j=0;j<this.DesignNeuralNetworkView.ConvArray[i].length;j++){
                     for(let k=0;k<this.DesignNeuralNetworkView.AllConvArray[i].length;k++){
-                        this.DesignNeuralNetworkView.AllConvArray[i][k] += this.DesignNeuralNetworkView.ConvArray[Math.floor(MapArrayValue/this.DesignNeuralNetworkView.AllConvArray)];
+                        console.log("-----"+MapArrayValue+","+this.DesignNeuralNetworkView.AllConvArray[i].length);     
+                        this.DesignNeuralNetworkView.AllConvArray[i][k] += Number(this.DesignNeuralNetworkView.ConvArray[Math.floor(MapArrayValue/this.DesignNeuralNetworkView.AllConvArray[i].length)]);
                     }
                 }
-
+                */
             }
+            console.log(MapArrayValueArray);
+            
 
+            for(let i=0;i<this.DesignNeuralNetworkView.AllConvArray.length;i++){
+                for(let j=0;j<this.DesignNeuralNetworkView.AllConvArray[i].length;j++){
+                        
+                    for(let k=0;k<this.DesignNeuralNetworkView.ConvArray.length;k++){
+                        if(i<=k){
+                            this.DesignNeuralNetworkView.AllConvArray[k][j] += Number(this.DesignNeuralNetworkView.ConvArray[k][Math.floor(j/this.DesignNeuralNetworkView.ConvArray[k].length)]);
+                        }
+                    }
+                }
+                console.log(this.DesignNeuralNetworkView.AllConvArray);
+            }
             // In
+            /*
             for(let i=0;i<this.DesignNeuralNetworkView.ConvArray.length;i++){ // 3
                 let TmpConv = 0;
                 if(i > 0){
@@ -825,7 +836,7 @@ var Panel = new Vue({
                 }else{
                     this.DesignNeuralNetworkView.AllConvArray.push(this.DesignNeuralNetworkView.ConvArray[0]);
                 }
-            }
+            }*/
             this.NextViewEvent();
         },
         OutputFile:function(){
@@ -837,9 +848,7 @@ var Panel = new Vue({
         },
         //----
         InitC3View:function(){
-            for (let i = 0; i < this.DesignFuzzyNumberView.MFArray.length; i++) {
-                console.log("---");
-                
+            for (let i = 0; i < this.DesignFuzzyNumberView.MFArray.length; i++) {                
                 this.DesignFuzzyNumberView.MFArray[i].C3 = c3.generate({
                     bindto: "#"+this.DesignFuzzyNumberView.MFArray[i].MFName,
                     data: {
