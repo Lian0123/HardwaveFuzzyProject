@@ -411,7 +411,7 @@
             <div class="CONTENT A ROW">
                 <div class="col8">
                     <div class="BLOCK_CONTENT">
-                        <p>無操作選項，請直接按下下一步</p>
+                        <p>無操作選項，請直接按下"下一步"</p>
                     </div>
                 </div>
 
@@ -421,7 +421,7 @@
             <!--ROW 3-->
             <div class="CONTENT A ROW">
                 <div class="col16">
-                    <div @click="NextViewEvent()"><al-button text="下一步"></al-button></div>
+                    <div @click="FinNotSetDimDesignViewEvent()"><al-button text="下一步"></al-button></div>
                 </div>
             </div>
         </div>
@@ -540,14 +540,10 @@
 
             <!--ROW 5-->
             <div class="CONTENT A ROW">
-
-                <div class="col4">
+                <div class="col16">
                     <div class="BLOCK_CONTENT">
-                        <p>連線至ANN總節點：</p>
+                        <p>連線至ANN總節點：<input class="ABLINPUT" type="number" min="0" step="1" placeholder="請輸入ANN總節點數" v-model="DesignMumbershipFuncitonView.ANNSum"/></p>
                     </div>
-                </div>
-                <div class="col12">
-                    
                 </div>
             </div>
 
@@ -646,13 +642,15 @@
                     <p>
                         <b>第0層：</b><br>
                         功能：自池化擴張<br>
-                        前層大小：{{DesignNeuralNetworkView.MatrixRow}}*{{DesignNeuralNetworkView.MatrixRow}}<br>
+                        此層大小：{{DesignNeuralNetworkView.MatrixRow}}*{{DesignNeuralNetworkView.MatrixRow}}<br>
+                        下層大小：{{DesignNeuralNetworkView.MatrixRow-2+1}}*{{DesignNeuralNetworkView.MatrixRow-2+1}}<br>
                         Kernel大小：2*2
                     </p>
                     <p v-for="(item, index) in DesignNeuralNetworkView.LayerList">
                         <b>第{{index+1}}層：</b><br>
                         功能：{{DesignNeuralNetworkView.LayerTypeArray[item.SelectLayerType]}}<br>
-                        前層大小：{{item.WindowSize}}*{{item.WindowSize}}<br>
+                        此層大小：{{item.ThisHave}}*{{item.ThisHave}}<br>
+                        下層大小：{{item.WindowSize}}*{{item.WindowSize}}<br>
                         Kernel大小：<element v-if="item.SelectLayerType == 1">不適用</element><element v-else>{{item.SelectLayerAllSum[item.SelectLayerSum]}}*{{item.SelectLayerAllSum[item.SelectLayerSum]}}</element><br>
                     </p>
 

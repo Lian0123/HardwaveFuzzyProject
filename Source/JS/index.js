@@ -194,6 +194,7 @@ var Panel = new Vue({
             TmpMatrixRow         : 0                      , //剩餘單行Row的暫存
             ConvArray            : []                     , //捲積運算偏移陣列
             AllConvArray         : []                     , //展開的捲積運算資料陣列
+            ANNSum               : 0                      , //連線至ANN架構上的總點數
         },
         //專案確認界面
         ProjectCheckView:{
@@ -532,22 +533,9 @@ var Panel = new Vue({
                 }
             }
 
-
-            console.log(AreaData);
-
             this.DesignFuzzyNumberView.MFArray[index].C3 = c3.generate({
                 bindto: "#"+this.DesignFuzzyNumberView.MFArray[index].MFName,
                 data: {
-                    /*colors:{
-                        data1:"#86C166",
-                        data2:"#fff782",
-                        data3:"#f00782",
-                        data4:"#f00782",
-                        data5:"#f00782",
-                        data6:"#f00782",
-                        data7:"#f00782",
-                        data8:"#f00782",
-                    },*/
                     x: 'x',
                     columns: TmpCol,
                     types:JSON.parse("{"+AreaData+"}")
@@ -686,10 +674,22 @@ var Panel = new Vue({
             let TmpMatrixSum = 0;
 
             for (let i = 0; i < this.DesignFuzzyNumberView.MFArray.length; i++) {
+                TmpMatrixSum += this.DesignFuzzyNumberView.MFArray[i].FN.length;
+            }
+
+            this.DesignNeuralNetworkView.MatrixRow    = Math.ceil(Math.sqrt(TmpMatrixSum*(this.DesignRuleView.AxisRateArray.length-1)));
+            this.DesignNeuralNetworkView.TmpMatrixRow =  this.DesignNeuralNetworkView.MatrixRow-2+1;
+            this.NextViewEvent();
+        },
+        FinNotSetDimDesignViewEvent:function() {
+            this.ClearLayer();
+            let TmpMatrixSum = 0;
+
+            for (let i = 0; i < this.DesignFuzzyNumberView.MFArray.length; i++) {
                 TmpMatrixSum += this.DesignFuzzyNumberView.MFArray[i].FN.length
             }
 
-            this.DesignNeuralNetworkView.MatrixRow = Math.ceil(Math.sqrt(TmpMatrixSum*(this.DesignRuleView.AxisRateArray.length-1)));
+            this.DesignNeuralNetworkView.MatrixRow    = Math.ceil(Math.sqrt(TmpMatrixSum*(this.DesignRuleView.AxisRateArray.length-1)));
             this.DesignNeuralNetworkView.TmpMatrixRow =  this.DesignNeuralNetworkView.MatrixRow-2+1;
             this.NextViewEvent();
         },
@@ -703,38 +703,40 @@ var Panel = new Vue({
 
                 if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerType == 1){
                     this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum = 0;
-                    let TmpBefore = this.DesignNeuralNetworkView.TmpMatrixRow;
                    
                     for(let i=this.DesignNeuralNetworkView.LayerList.length-1;i>=0;i--){
                         if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType != 1){
-                            TmpBefore = this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum.length-1];
+                            TmpArray = this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum.reverse();
                             break;
                         }
                     }
 
-                    for(let i=0;i<TmpBefore+1;i++){
-                        TmpArray.push(i+2);
-                    }
+                    //無意義的一致性調整
+                    //TmpArray.push("0");
+
                 }else{
                     if(this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum < 1){
                         alert("前層總行列數不可小於1");
                         return;
                     }
 
-                    for(let i=0;i<this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum;i++){
+                    for(let i=0;i<=this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].SelectLayerSum;i++){
                         TmpArray.push(i+2);
                     }
+                    
+                    TmpArray.pop();
                 }
                 
                 this.DesignNeuralNetworkView.LayerList[this.DesignNeuralNetworkView.LayerList.length-1].IsEdit = false;
+
             }else{
                 for(let i=0;i<this.DesignNeuralNetworkView.MatrixRow-2+1;i++){
                     TmpArray.push(i+2);
                 }
+                TmpArray.pop();
             }
 
-            TmpArray.pop();
-            this.DesignNeuralNetworkView.LayerList.push({SelectLayerType:"0",SelectLayerAllSum:TmpArray.reverse(),SelectLayerSum:0,WindowSize:0,IsEdit:true,Offset:0});
+            this.DesignNeuralNetworkView.LayerList.push({SelectLayerType:"0",SelectLayerAllSum:TmpArray.reverse(),SelectLayerSum:0,WindowSize:0,ThisHave:TmpArray[0],IsEdit:true,Offset:0});
         },
         RemoveLayer:function(index){
             this.DesignNeuralNetworkView.LayerList.splice(index);
@@ -743,23 +745,32 @@ var Panel = new Vue({
         },
         FinDesignNeuralNetworkViewEvent:function() {
             for(let i=0;i<this.DesignNeuralNetworkView.LayerList.length;i++){
+                let TmpBeforeWindowSize = this.DesignNeuralNetworkView.MatrixRow;
                 if(i==0){
                     this.DesignNeuralNetworkView.LayerList[i].WindowSize = this.DesignNeuralNetworkView.MatrixRow -2 +1 - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] +1;
+                    TmpBeforeWindowSize = this.DesignNeuralNetworkView.LayerList[i].WindowSize;
                 }else{
-                    this.DesignNeuralNetworkView.LayerList[i].WindowSizeWindowSize = this.DesignNeuralNetworkView.LayerList[i-1].WindowSize - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1;
+                    if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 1){
+                        this.DesignNeuralNetworkView.LayerList[i].WindowSize = TmpBeforeWindowSize;
+                    }else{
+                        this.DesignNeuralNetworkView.LayerList[i].WindowSize = this.DesignNeuralNetworkView.LayerList[i-1].WindowSize - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1;
+                        TmpBeforeWindowSize = this.DesignNeuralNetworkView.LayerList[i].WindowSize;
+                    }
                 }
 
                 if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 0){
-                    let BlockArea = Math.floor((this.DesignNeuralNetworkView.LayerList[i].WindowSize - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1) / this.DesignNeuralNetworkView.LayerList[i].WindowSize);
-                    //let BlockArea = Math.floor(this.DesignNeuralNetworkView.LayerList[i].WindowSize / this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum]);
+                    let BlockArea = 1 + Math.floor((this.DesignNeuralNetworkView.LayerList[i].ThisHave - this.DesignNeuralNetworkView.LayerList[i].SelectLayerAllSum[this.DesignNeuralNetworkView.LayerList[i].SelectLayerSum] + 1) / this.DesignNeuralNetworkView.LayerList[i].WindowSize);
                     let TmpOffsetArray = [];
+
+                    console.log(BlockArea)
+
                     if(BlockArea > 1){
                         this.DesignNeuralNetworkView.LayerList[i].Offset = BlockArea;
                     }else{
                         this.DesignNeuralNetworkView.LayerList[i].Offset = 0;
                     }
 
-                    if(BlockArea > 0){
+                    if(BlockArea > 1){
                         for(let j=0;j<BlockArea;j++){
                             for(let k=0;k<BlockArea;k++){
                                 TmpOffsetArray.push(j*this.DesignNeuralNetworkView.MatrixRow+k*BlockArea);
@@ -774,10 +785,11 @@ var Panel = new Vue({
                 
             }
             
-            let AllConvArray = [];
             let MapArrayValueArray = [];
             let MapArrayValue = 1;
 
+            this.DesignNeuralNetworkView.AllConvArray = [];
+            
             for(let i=0;i<this.DesignNeuralNetworkView.ConvArray.length;i++){
                 let AllArray = [];
 
@@ -788,13 +800,12 @@ var Panel = new Vue({
                     AllArray.push(0);
                 }
 
-                AllConvArray.push(AllArray);
+                this.DesignNeuralNetworkView.AllConvArray.push(AllArray);
 
                 // 4 4 9
                 for(let j=0;j<this.DesignNeuralNetworkView.ConvArray[i].length;j++){
-                    for(let k=0;k<AllConvArray[i].length;k++){
-                        AllConvArray[i][k] += this.DesignNeuralNetworkView.ConvArray[Math.floor(MapArrayValue/AllConvArray)];
-                        
+                    for(let k=0;k<this.DesignNeuralNetworkView.AllConvArray[i].length;k++){
+                        this.DesignNeuralNetworkView.AllConvArray[i][k] += this.DesignNeuralNetworkView.ConvArray[Math.floor(MapArrayValue/this.DesignNeuralNetworkView.AllConvArray)];
                     }
                 }
 
@@ -807,12 +818,12 @@ var Panel = new Vue({
                     let Tmps = [];
                     for(let j=0;j<i;j++){ //前a層
                         for(let k=0;k<this.DesignNeuralNetworkView.ConvArray[j].length;k++){ //第1~a層每個offset
-                            AllConvArray.push(TmpConv);
+                            this.DesignNeuralNetworkView.AllConvArray.push(TmpConv);
                             Tmps += this.DesignNeuralNetworkView.ConvArray[j][k];
                         }
                     }
                 }else{
-                    AllConvArray.push(this.DesignNeuralNetworkView.ConvArray[0]);
+                    this.DesignNeuralNetworkView.AllConvArray.push(this.DesignNeuralNetworkView.ConvArray[0]);
                 }
             }
             this.NextViewEvent();
