@@ -195,13 +195,15 @@ var Panel = new Vue({
             ConvArray            : []                     , //捲積運算偏移陣列
             AllConvArray         : []                     , //展開的捲積運算資料陣列
             ANNSum               : 0                      , //連線至ANN架構上的總點數
+            PoolArray            : []                     , //池化運算偏移陣列
+            AllOffsetArray       : []                     , //組合成的偏移量資料
         },
         //專案確認界面
         ProjectCheckView:{
             IsView             : true                   , //頁面是否顯示
             ConnectLogicMap    : [' ','AND','OR','XOR'] , //快速檢測
-            ConnectLogicOutMap : [' ','&&','||','^'] , //快速檢測
-            PointLogicMap      : ['>','==','<']
+            ConnectLogicOutMap : [' ','&&','||','^']    , //快速檢測
+            PointLogicMap      : ['>','==','<']         , //快速檢測
         },
         //輸出專案檔案頁面
         ExportProjectView:{
@@ -808,19 +810,57 @@ var Panel = new Vue({
                 */
             }
             console.log(MapArrayValueArray);
-            
-
+            /*
             for(let i=0;i<this.DesignNeuralNetworkView.AllConvArray.length;i++){
                 for(let j=0;j<this.DesignNeuralNetworkView.AllConvArray[i].length;j++){
                         
                     for(let k=0;k<this.DesignNeuralNetworkView.ConvArray.length;k++){
                         if(i<=k){
-                            this.DesignNeuralNetworkView.AllConvArray[k][j] += Number(this.DesignNeuralNetworkView.ConvArray[k][Math.floor(j/this.DesignNeuralNetworkView.ConvArray[k].length)]);
+                            this.DesignNeuralNetworkView.AllConvArray[k][j] += this.DesignNeuralNetworkView.ConvArray[k][this.DesignNeuralNetworkView.AllConvArray[i].length/this.DesignNeuralNetworkView.ConvArray[k].length]
+
+                            this.DesignNeuralNetworkView.AllConvArray[k][j] += 
+                            Number(this.DesignNeuralNetworkView.ConvArray[k][Math.floor(j/this.DesignNeuralNetworkView.ConvArray[k].length)]);
                         }
                     }
                 }
                 console.log(this.DesignNeuralNetworkView.AllConvArray);
             }
+*/
+            
+            for(let i=0;i<this.DesignNeuralNetworkView.AllConvArray.length;i++){
+                for(let j=0;j<this.DesignNeuralNetworkView.AllConvArray[i].length;j++){
+                    this.DesignNeuralNetworkView.AllConvArray[i][j] += this.DesignNeuralNetworkView.ConvArray[i][j%this.DesignNeuralNetworkView.ConvArray[i].length];
+                    if(i>0){
+                        this.DesignNeuralNetworkView.AllConvArray[i][j] += this.DesignNeuralNetworkView.AllConvArray[i-1][Math.floor(j/(this.DesignNeuralNetworkView.AllConvArray[i].length/this.DesignNeuralNetworkView.AllConvArray[i-1].length))];
+                        console.log(Math.floor(j/(this.DesignNeuralNetworkView.AllConvArray[i].length/this.DesignNeuralNetworkView.AllConvArray[i-1].length)));
+                        
+                    }
+                    
+                }
+            }
+            
+            console.log(this.DesignNeuralNetworkView.AllConvArray);
+
+
+            //Set AllOffsetArray
+            let TmpStr = [];
+            let Subindex = 0;
+            for(let i=0;i<this.DesignNeuralNetworkView.LayerList.length;i++){
+                if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 0){
+                    this.DesignNeuralNetworkView.AllOffsetArray.push(this.DesignNeuralNetworkView.AllConvArray[Subindex]);
+                    Subindex++;
+                }else if(this.DesignNeuralNetworkView.LayerList[i].SelectLayerType == 1){
+                    this.DesignNeuralNetworkView.AllOffsetArray.push([-1]);
+                }else{
+                    if(i>0){
+                        this.DesignNeuralNetworkView.AllOffsetArray.push(this.DesignNeuralNetworkView.AllConvArray[Subindex]);
+                    }else{
+                        this.DesignNeuralNetworkView.AllOffsetArray.push([-1]);
+                    }
+                }
+            }
+            
+
             // In
             /*
             for(let i=0;i<this.DesignNeuralNetworkView.ConvArray.length;i++){ // 3
@@ -840,11 +880,15 @@ var Panel = new Vue({
             this.NextViewEvent();
         },
         OutputFile:function(){
+            WrtieString = "";
             WriteFile();
             fs.writeFileSync(__dirname + "/"+this.MakeProjectView.ProjectName+".sv",WrtieString,{flag:'w'});
             alert("檔案已新增完成","通知");
             this.ChangeViewEvent(0);
-            //Clear ALL
+            this.ClearAll();
+        },
+        ClearAll:function(){
+
         },
         //----
         InitC3View:function(){
