@@ -46,14 +46,22 @@
         <div v-if="IndexView.IsView">
             <br>
             <div class="CONTENT A ROW">
-                    <div class="col16">
+                <div class="col16">
                     <b>使用說明：</b>
                     <p>該程式用於建立，HardFuzzy控制器的程式碼生成。</p>
 
                     <b>免則申明：</b>
                     <p>該程式碼所生成之應用所造成之任何危害行為，本程式不會為任何損失的負責。</p>
                     <div @click="NextViewEvent()"><al-button text="我同意使用規則"></al-button></div>
-
+                    
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="CONTENT A ROW">
+                <div class="col16">
+                    <p><b>其他選項：</b></p>
+                    <div @click="DownLoadZip()"><al-button text="下載相依函式庫"></al-button></div>
                 </div>
             </div>
         </div>
@@ -582,7 +590,7 @@
             <div class="CONTENT A ROW">
                 <div class="col16">
                     <div class="BLOCK_CONTENT">
-                    <h2>專案確認</h2>
+                        <h2>專案確認</h2>
                     </div>
                 </div>
             </div>
@@ -650,7 +658,6 @@
                         <b>第{{index+1}}層：</b><br>
                         功能：{{DesignNeuralNetworkView.LayerTypeArray[item.SelectLayerType]}}<br>
                         此層大小：{{item.ThisHave}}*{{item.ThisHave}}<br>
-                        <!--下層大小：<element v-if="item.SelectLayerType == 1">不適用</element><element v-else>{{item.WindowSize}}*{{item.WindowSize}}</element><br>-->
                         Kernel大小：<element v-if="item.SelectLayerType == 1">不適用</element><element v-else>{{item.SelectLayerAllSum[item.SelectLayerSum]}}*{{item.SelectLayerAllSum[item.SelectLayerSum]}}</element><br>
                     </p>
 
@@ -658,13 +665,21 @@
             </div>
             <br>
 
+            <div v-if="DesignDownDimView.DimList.length > 0" class="CONTENT A ROW">
+                <div class="col16">
+                    <h3>維度降低層以下結構需手動建立：</h3>
+                    <p>1.維度降低的計算連接</p>
+                    <p>2.覆寫控制條件式</p>
+                </div>
+            </div>
+            <br>
 
             <div v-if="DesignNeuralNetworkView.LayerList.length > 0" class="CONTENT A ROW">
                 <div class="col16">
-                    <h3>需手動建立：</h3>
+                    <h3>仿神經網路層以下結構需手動建立：</h3>
                     <p>1.仿捲積運算的特徵值</p>
                     <p>2.仿ANN連接節點</p>
-                    <p>3.自適應調整遮罩控制條件</p>
+                    <p>3.自適應調整遮罩控制條件與初始化遮罩控制訊號</p>
                 </div>
             </div>
             <br>
