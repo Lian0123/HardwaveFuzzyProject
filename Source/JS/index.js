@@ -160,9 +160,9 @@ var Panel = new Vue({
         //建立MF值域界面
         DesignMumbershipFuncitonView:{
             IsView    : true  , //是否顯示
-            MFArray   : []    , //MF陣列 {MFName:編號 Name: 資料名, FN:FN點資料,C3:C3表格物件}
+            MFArray   : []    , //MF陣列 {MFName:編號 Name: 資料名, DownSafe:單一合理下界, UpSafe:單一合理上界, Offset:單一偏移量 , FN:FN點資料,C3:C3表格物件}
             AxisRate  : 0.1   , //預設Rate值
-            Offset    : 0     , //偏移量
+            Offset    : 0     , //總偏移量
             HasBack   : 0     , //有無回授
             UpSafe    : 1024  , //合理上界
             DownSafe  : 0     , //合理下界
@@ -347,7 +347,7 @@ var Panel = new Vue({
                 return;
             }
 
-            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"MF_"+GetText, Name: GetText, FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
+            this.DesignMumbershipFuncitonView.MFArray.push({MFName:"MF_"+GetText, Name: GetText, DownSafe:this.DesignMumbershipFuncitonView.DownSafe, UpSafe:this.DesignMumbershipFuncitonView.UpSafe, Offset:0, FN:[], X0Tmp:0, X1Tmp:0, X2Tmp:0, X3Tmp:0,C3:(Object)});
         },
         RemoveMFEvent:function(index) {
             if(index == this.DesignMumbershipFuncitonView.MFArray.length){
@@ -410,6 +410,10 @@ var Panel = new Vue({
                 this.DesignMumbershipFuncitonView.DevValue++;
             }
             
+            for (const item of this.DesignMumbershipFuncitonView.MFArray) {
+                item.UpSafe = this.DesignMumbershipFuncitonView.UpSafe;
+                item.DownSafe = this.DesignMumbershipFuncitonView.DownSafe;
+            }
 
             this.DesignFuzzyNumberView.MFArray = this.DesignMumbershipFuncitonView.MFArray;
             this.NextViewEvent();
@@ -431,13 +435,25 @@ var Panel = new Vue({
                 return;
             }
 
+            
             if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp < this.DesignMumbershipFuncitonView.DownSafe || this.DesignFuzzyNumberView.MFArray[index].X1Tmp < this.DesignMumbershipFuncitonView.DownSafe || this.DesignFuzzyNumberView.MFArray[index].X2Tmp < this.DesignMumbershipFuncitonView.DownSafe || this.DesignFuzzyNumberView.MFArray[index].X3Tmp < this.DesignMumbershipFuncitonView.DownSafe){
-                alert("FN節點輸入需皆大於等於設定下界("+this.DesignMumbershipFuncitonView.DownSafe+")","錯誤");
+                alert("FN節點輸入需皆大於等於全域下界("+this.DesignMumbershipFuncitonView.DownSafe+")","錯誤");
                 return;
             }
         
             if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp > this.DesignMumbershipFuncitonView.UpSafe || this.DesignFuzzyNumberView.MFArray[index].X1Tmp > this.DesignMumbershipFuncitonView.UpSafe || this.DesignFuzzyNumberView.MFArray[index].X2Tmp  > this.DesignMumbershipFuncitonView.UpSafe || this.DesignFuzzyNumberView.MFArray[index].X3Tmp  > this.DesignMumbershipFuncitonView.UpSafe){
-                alert("FN節點輸入需皆小於等於設定上界("+this.DesignMumbershipFuncitonView.UpSafe+")","錯誤");
+                alert("FN節點輸入需皆小於等於全域上界("+this.DesignMumbershipFuncitonView.UpSafe+")","錯誤");
+                return;
+            }
+
+
+            if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp < this.DesignMumbershipFuncitonView.MFArray[index].DownSafe || this.DesignFuzzyNumberView.MFArray[index].X1Tmp < this.DesignMumbershipFuncitonView.MFArray[index].DownSafe || this.DesignFuzzyNumberView.MFArray[index].X2Tmp < this.DesignMumbershipFuncitonView.MFArray[index].DownSafe || this.DesignFuzzyNumberView.MFArray[index].X3Tmp < this.DesignMumbershipFuncitonView.MFArray[index].DownSafe){
+                alert("FN節點輸入需皆小於等於FN"+(index+1)+"設定下界("+this.DesignMumbershipFuncitonView.DownSafe+")","錯誤");
+                return;
+            }
+        
+            if(this.DesignFuzzyNumberView.MFArray[index].X0Tmp > this.DesignFuzzyNumberView.MFArray[index].UpSafe || this.DesignFuzzyNumberView.MFArray[index].X1Tmp > this.DesignMumbershipFuncitonView.MFArray[index].UpSafe || this.DesignFuzzyNumberView.MFArray[index].X2Tmp  > this.DesignMumbershipFuncitonView.MFArray[index].UpSafe || this.DesignFuzzyNumberView.MFArray[index].X3Tmp  > this.DesignMumbershipFuncitonView.MFArray[index].UpSafe){
+                alert("FN節點輸入需皆小於等於FN"+(index+1)+"設定上界("+this.DesignMumbershipFuncitonView.UpSafe+")","錯誤");
                 return;
             }
 
@@ -566,6 +582,16 @@ var Panel = new Vue({
             for (const item of this.DesignFuzzyNumberView.MFArray) {
                 if(item.FN == 0){
                     alert("每個MF中至少需輸入一個FN","錯誤");
+                    return;
+                }
+
+                if(item.UpSafe > this.DesignMumbershipFuncitonView.UpSafe){
+                    alert("每個MF上限都需小於全域上限("+this.DesignMumbershipFuncitonView.UpSafe+")","錯誤");
+                    return;
+                }
+                
+                if(item.DownSafe < this.DesignMumbershipFuncitonView.DownSafe){
+                    alert("每個MF上限都需大於全域下限("+this.DesignMumbershipFuncitonView.DownSafe+")","錯誤");
                     return;
                 }
             }

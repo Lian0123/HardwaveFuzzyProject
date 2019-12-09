@@ -133,7 +133,7 @@
 
                 <div class="col8">
                     <div class="BLOCK_CONTENT">
-                        <p>請輸入正常值上限：<input class="ABLINPUT" type="number" step="1" placeholder="請輸入上限值" v-model="DesignMumbershipFuncitonView.UpSafe"/></p>
+                        <p>請輸入正常值上限：<input class="ABLINPUT" type="number" step="1" min="0" placeholder="請輸入上限值" v-model="DesignMumbershipFuncitonView.UpSafe"/></p>
                     </div>
                 </div>
             </div>
@@ -175,7 +175,7 @@
                     </div>  
                     <div class="col8">
                         <div class="BLOCK_CONTENT">
-                        <b>MF名稱：</b>
+                        <b>MF名稱：{{item.Name}}</b>
                         <p>FuzzyNumber：<input class="ABLINPUT" type="number" min="0" placeholder="X0" v-model.trim="item.X0Tmp"/></p>
                         <p><input class="ABLINPUT" type="number" min="0" placeholder="X1" v-model.trim="item.X1Tmp"/></p>
                         <p><input class="ABLINPUT" type="number" min="0" placeholder="X2" v-model.trim="item.X2Tmp"/></p>
@@ -185,8 +185,31 @@
                     </div>
                 </div>
                 <br>
-
+                
                 <!--ROW 2-->
+                <div class=" CONTENT A ROW">
+                    <div class="col4">
+                        <div class="BLOCK_CONTENT">
+                            <p>請輸入MF{{index+1}}偏移量：<input class="ABLINPUT" type="number" step="1" min="0" placeholder="請輸入上限值" v-model="item.Offset"/></p>
+                        </div>
+                    </div>
+
+                    <div class="col6">
+                        <div class="BLOCK_CONTENT">
+                            <p>請輸入MF{{index+1}}正常值下限：<input class="ABLINPUT" type="number" step="1" min="0" placeholder="請輸入下限值" v-model="item.DownSafe"/></p>
+                        </div>
+                    </div>
+
+                    <div class="col6">
+                        <div class="BLOCK_CONTENT">
+                            <p>請輸入MF{{index+1}}正常值上限：<input class="ABLINPUT" type="number" step="1" min="0" placeholder="請輸入上限值" v-model="item.UpSafe"/></p>
+                        </div>
+                    </div>
+                    
+                </div>
+                <br>
+
+                <!--ROW 3-->
                 <div v-for="(subitem, subindex) in DesignFuzzyNumberView.MFArray[index].FN" class="CONTENT A ROW">
                     <div class="col8">
                         <p>data{{subindex+1}}(FN{{subindex}})</p>

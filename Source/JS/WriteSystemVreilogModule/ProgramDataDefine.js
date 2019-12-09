@@ -412,7 +412,7 @@ var GetSensorGetStr = function GetSensorGetStr() {
     console.log("--Write GetSensorGetStr--");
     let ReturnStr = "";
     for(let i=0; i<Panel.DesignRuleView.MFArray.length; i++){
-        ReturnStr += "\t\tSensorGet #(.SensorGet_LimitBit(DevValue),.BaseUpBound(" + Panel.DesignMumbershipFuncitonView.UpSafe + "),.BaseDownBound(" + Panel.DesignMumbershipFuncitonView.DownSafe + "),.ShiftVlaue(FixValue)) SensorGetLayerForMF"+(i+1)+"(.SensorGetValue(dev"+(i+1)+"),.FixedValue(MF"+(i+1)+"FixValue),.ErrorReturn(SensorGetMF"+(i+1)+"Tester)); \n";
+        ReturnStr += "\t\tSensorGet #(.SensorGet_LimitBit(DevValue),.BaseUpBound(" + Panel.DesignMumbershipFuncitonView.MFArray[i].UpSafe + "),.BaseDownBound(" + Panel.DesignMumbershipFuncitonView.MFArray[i].DownSafe + "),.ShiftVlaue(FixValue+"+Panel.DesignRuleView.MFArray[i].Offset+")) SensorGetLayerForMF"+(i+1)+"(.SensorGetValue(dev"+(i+1)+"),.FixedValue(MF"+(i+1)+"FixValue),.ErrorReturn(SensorGetMF"+(i+1)+"Tester)); \n";
     }
 
     return ReturnStr;
